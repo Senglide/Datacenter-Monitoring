@@ -1,27 +1,39 @@
-# Test writing data to db
+# Script used for testing because the mqtt broker doesn't throw python errors and exceptions
 
-# Imports
-import configparser
-import urllib.parse
-import pymongo
+# import json
 
-from pymongo import MongoClient
+# from reading_class import Reading
+# from db_writer import write_reading
 
-# Get db credentials from config file
-dbconfig = configparser.ConfigParser()
-dbconfig.sections()
-dbconfig.read('/etc/databaseapi/dbconfig.ini')
-dbuser = urllib.parse.quote_plus(dbconfig['configuration']['username'])
-dbpass = urllib.parse.quote_plus(dbconfig['configuration']['password'])
+# myobj = {
+#     "readings": [
+#         {"type": "temp", "sensor": 1, "value": 25},
+#         {"type": "hum", "sensor": 1, "value": 70},
+#         {"type": "temp", "sensor": 2, "value": 23},
+#         {"type": "hum", "sensor": 2, "value": 80}
+#     ]
+# }
 
-# Connect to db
-client = MongoClient('mongodb://%s:%s@localhost:27017/admin?authMechanism=SCRAM-SHA-1' % (dbuser, dbpass))
-db = client['admin']
+# str_myobj = str(myobj)
+# str_myobj = str_myobj.replace("'", '"')
 
-# Random testdata
-post = {'author': 'Mike', 'text': 'My first blog post!', 'tags': ['mongodb', 'python', 'pymongo']}
+# print('string:    ' + str_myobj)
 
-# Inserting data
-posts = db.posts
-post_id = posts.insert_one(post).inserted_id
-print(post_id)
+# json_myobj = json.loads(str_myobj)
+
+# print(json_myobj['readings'][0])
+
+# for reading in myobj['readings']:
+#     new_reading = Reading(
+#         1,
+#         reading['sensor'],
+#         reading['type'],
+#         reading['value']
+#     )
+#     new_writeable_reading = new_reading.make_writeable()
+#     write_reading(new_writeable_reading, 1)
+
+# new_reading = Reading(1, 1, 'temp', 25)
+# writeable_reading = new_reading.make_writeable()
+# print('what is going on')
+# print(writeable_reading)
