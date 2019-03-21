@@ -1,2 +1,0 @@
-# Datacenter-Monitoring
-This is a three piece project to monitor the conditions in a data center. It contains code to operate sensors on Raspberry Pi and Arduino, a database and API to store and access the data from the sensors, and a Django based WEB-UI to visualize the data. This project is meant to be a framework that can be used for other projects by just switching out / adjusting one or more of the three components.
