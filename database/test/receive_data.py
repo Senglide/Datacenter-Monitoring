@@ -37,7 +37,7 @@ def process_reading(reading):
     # Format reading for the db
     new_writeable_reading = new_reading.make_writeable()
     # Determin the correct collection for the reading
-    if new_reading.rack == 0:
+    if new_reading.rack == '0':
         collection_name = new_reading.sensor_type
     else:
         collection_name = 'rack' + str(new_reading.rack)
