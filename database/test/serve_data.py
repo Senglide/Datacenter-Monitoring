@@ -12,17 +12,21 @@ from bson.json_util import dumps
 # Get db credentials from config file
 dbconfig = configparser.ConfigParser()
 dbconfig.sections()
-dbconfig.read('/etc/databaseapi/dbconfig.ini')
-dbuser = urllib.parse.quote_plus(dbconfig['configuration']['username'])
-dbpass = urllib.parse.quote_plus(dbconfig['configuration']['password'])
+dbconfig.read('/etc/monitoring/dbconfig.ini')
+dbuser = dbconfig['configuration']['username']
+dbpass = dbconfig['configuration']['password']
+dbhost = dbconfig['configuration']['host']
+dbport = dbconfig['configuration']['port']
+dbauth = dbconfig['configuration']['auth']
+dbmech = dbconfig['configuration']['mech']
 
 # Connect to db
-client = MongoClient('mongodb://%s:%s@localhost:27017/admin?authMechanism=SCRAM-SHA-1' % (dbuser, dbpass))
+client = MongoClient('mongodb://%s:%s@%s:%s/%s?authMechanism=%s' % (dbuser, dbpass, dbhost, dbport, dbauth, dbmech))
 db = client['monitoring']
 
 # Setup API request handler
 async def getReadings(request):
-    cursor = db.rack1.find()
+    cursor = db.dashboard_rack_1.find()
     readinglist = list(cursor)
     readings = dumps(readinglist)
 
