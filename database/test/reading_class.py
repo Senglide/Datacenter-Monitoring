@@ -20,7 +20,7 @@ class Reading(object):
             "rack": self.rack,
             "sensor": self.sensor,
             "sensor_type": self.sensor_type,
-            "sensor_value:": self.sensor_value,
+            "sensor_value": self.sensor_value,
             "datetime": self.datetime
         }
         return reading

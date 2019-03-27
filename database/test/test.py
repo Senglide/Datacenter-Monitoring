@@ -31,6 +31,7 @@ str_myobj = str_myobj.replace("'", '"')
 json_myobj = json.loads(str_myobj)
 
 for reading in myobj['readings']:
+    reading = reading.copy()
     new_reading = Reading(
         reading['rack'],
         reading['sensor'],
@@ -38,6 +39,7 @@ for reading in myobj['readings']:
         reading['sensor_value']
     )
     new_writeable_reading = new_reading.make_writeable()
+    print(new_writeable_reading)
     write_reading(new_writeable_reading, 'dashboard_rack_' + str(reading['rack']))
 
 # new_reading = Reading(1, 1, 'temp', 25)
