@@ -10,7 +10,19 @@ myobj = {
         {"rack": 1, "sensor": 1, "sensor_type": "temp", "sensor_value": 25},
         {"rack": 1, "sensor": 1, "sensor_type": "hum", "sensor_value": 70},
         {"rack": 1, "sensor": 2, "sensor_type": "temp", "sensor_value": 23},
-        {"rack": 1, "sensor": 2, "sensor_type": "hum", "sensor_value": 80}
+        {"rack": 1, "sensor": 2, "sensor_type": "hum", "sensor_value": 80},
+        {"rack": 2, "sensor": 1, "sensor_type": "temp", "sensor_value": 24},
+        {"rack": 2, "sensor": 1, "sensor_type": "hum", "sensor_value": 72},
+        {"rack": 2, "sensor": 2, "sensor_type": "temp", "sensor_value": 25},
+        {"rack": 2, "sensor": 2, "sensor_type": "hum", "sensor_value": 76},
+        {"rack": 3, "sensor": 1, "sensor_type": "temp", "sensor_value": 26},
+        {"rack": 3, "sensor": 1, "sensor_type": "hum", "sensor_value": 85},
+        {"rack": 3, "sensor": 2, "sensor_type": "temp", "sensor_value": 28},
+        {"rack": 3, "sensor": 2, "sensor_type": "hum", "sensor_value": 82},
+        {"rack": 0, "sensor": 1, "sensor_type": "movement", "sensor_value": 1},
+        {"rack": 0, "sensor": 1, "sensor_type": "smoke", "sensor_value": 0},
+        {"rack": 0, "sensor": 2, "sensor_type": "movement", "sensor_value": 0},
+        {"rack": 0, "sensor": 2, "sensor_type": "smoke", "sensor_value": 1}
     ]
 }
 
