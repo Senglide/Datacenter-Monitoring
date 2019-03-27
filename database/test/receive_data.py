@@ -31,16 +31,16 @@ def process_reading(reading):
     new_reading = Reading(
         reading['rack'],
         reading['sensor'],
-        reading['type'],
-        reading['value']
+        reading['sensor_type'],
+        reading['sensor_value']
     )
     # Format reading for the db
     new_writeable_reading = new_reading.make_writeable()
     # Determin the correct collection for the reading
     if new_reading.rack == '0':
-        collection_name = new_reading.sensor_type
+        collection_name = 'dashboard_' + new_reading.sensor_type
     else:
-        collection_name = 'rack' + str(new_reading.rack)
+        collection_name = 'dashboard_rack_' + str(new_reading.rack)
     # Send the reading to the db_writer
     write_reading(new_writeable_reading, collection_name)
 
@@ -48,9 +48,11 @@ def process_reading(reading):
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
+client.tls_set('ca.crt')
+client.tls_insecure_set(True)
 
 # Connect to client
-client.connect('10.140.10.21', 1883, 60)
+client.connect('10.140.10.21', 8883, 60)
 
 # Blocking call that processes network traffic, dispatches callbacks and handles reconnecting
 client.loop_forever()
