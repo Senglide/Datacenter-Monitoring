@@ -2,8 +2,8 @@
 
 import json
 
-from reading_class import Reading
-from db_writer import write_reading
+from ./code/reading_class import Reading
+from ./code/db_writer import write_reading
 
 myobj = {
     "readings": [
@@ -40,9 +40,4 @@ for reading in myobj['readings']:
     )
     new_writeable_reading = new_reading.make_writeable()
     print(new_writeable_reading)
-    write_reading(new_writeable_reading, 'dashboard_rack_' + str(reading['rack']))
-
-# new_reading = Reading(1, 1, 'temp', 25)
-# writeable_reading = new_reading.make_writeable()
-# print('what is going on')
-# print(writeable_reading)
+    write_reading(new_writeable_reading, 'diy_rack_' + str(reading['rack']))
