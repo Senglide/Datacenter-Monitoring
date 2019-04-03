@@ -9,5 +9,5 @@ app_name = 'dashboard'
 # Routes
 urlpatterns = [
     path('', views.index, name='index'),
-    path('update_readings', views.get_newest_readings)
+    path('get_newest_readings', views.get_newest_readings)
 ]

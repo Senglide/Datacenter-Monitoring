@@ -36,7 +36,7 @@ function startUpdates() {
 function getData(nextFunction) {
     $.ajax({
         type: 'GET',
-        url: 'update_readings',
+        url: 'get_newest_readings',
         dataType: 'json',
         success: function(response) {
             // Format data
