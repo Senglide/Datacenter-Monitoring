@@ -8,7 +8,7 @@ def index(request):
     return render(request, 'dashboard/index.html')
 
 # Get newest readings
-def get_newest_readings():
+def get_newest_readings(request):
     readings = Rack_1.objects.filter(sensor_type='temp').order_by('datetime').reverse()[:30]
     data = []
     for reading in readings:
