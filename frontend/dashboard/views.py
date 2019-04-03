@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 
 # Create your views here.
+from .models import Rack_1
 
 # Index page
 def index(request):
