@@ -82,7 +82,7 @@ dbconfig.read('/etc/monitoring/dbconfig.ini')
 dbuser = dbconfig['configuration']['username']
 dbpass = dbconfig['configuration']['password']
 dbhost = dbconfig['configuration']['host']
-dbport = udbconfig['configuration']['port']
+dbport = dbconfig['configuration']['port']
 dbauth = dbconfig['configuration']['auth']
 dbmech = dbconfig['configuration']['mech']
 
