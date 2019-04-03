@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import configparser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +26,7 @@ SECRET_KEY = 'sk&1lu4$#$2jj3tc0qz6)-gl9lgftzv^bi$zu^k9xq1-2h&pky'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dashboard.apps.DashboardConfig'
 ]
 
 MIDDLEWARE = [
@@ -73,10 +75,28 @@ WSGI_APPLICATION = 'frontend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# Get DB credentials
+dbconfig = configparser.ConfigParser()
+dbconfig.sections()
+dbconfig.read('/etc/monitoring/dbconfig.ini')
+dbuser = urllib.parse.quote_plus(dbconfig['configuration']['username'])
+dbpass = urllib.parse.quote_plus(dbconfig['configuration']['password'])
+dbhost = urllib.parse.quote_plus(dbconfig['configuration']['host'])
+dbport = urllib.parse.quote_plus(dbconfig['configuration']['port'])
+dbauth = urllib.parse.quote_plus(dbconfig['configuration']['auth'])
+dbmech = urllib.parse.quote_plus(dbconfig['configuration']['mech'])
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'djongo',
+        'NAME': 'monitoring',
+	    'HOST': dbhost,
+	    'PORT': int(dbport),
+	    'USER': dbuser,
+	    'PASSWORD': dbpass,
+	    'AUTH-SOURCE': dbauth,
+	    'AUTH_MECHANISM': dbmech,
+        'ENFORCE_SCHEMA': False
     }
 }
 
@@ -105,7 +125,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Addis_Ababa'
 
 USE_I18N = True
 

@@ -1,0 +1,1 @@
+This is the Django project that will provide a dashboard UI to visualise the collected data.
