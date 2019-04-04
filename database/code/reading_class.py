@@ -12,7 +12,7 @@ class Reading(object):
         self.sensor = sensor
         self.sensor_type = sensor_type
         self.sensor_value = sensor_value
-        self.datetime = datetime.datetime.utcnow()
+        self.datetime = datetime.datetime.now()
 
     # Return writeable reading for the database
     def make_writeable(self):

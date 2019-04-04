@@ -10,7 +10,7 @@ def index(request):
 
 # Get newest readings
 def get_newest_readings(request):
-    readings = Rack_1.objects.filter(sensor_type='temp').order_by('datetime').reverse()[:30]
+    readings = Rack_1.objects.filter(sensor_type='temp').order_by('datetime').reverse()[:90]
     data = []
     for reading in readings:
         data.append({
