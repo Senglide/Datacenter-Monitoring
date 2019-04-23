@@ -39,7 +39,9 @@ def process_reading(reading):
         reading['rack'],
         reading['sensor'],
         reading['sensor_type'],
-        reading['sensor_value']
+        reading['sensor_value'],
+        reading['date'],
+        reading['time']
     )
 
     # Format reading for the db
