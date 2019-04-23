@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
+    'django_eventstream',
     'dashboard.apps.DashboardConfig'
 ]
 
@@ -49,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_grip.GripMiddleware'
 ]
 
 ROOT_URLCONF = 'frontend.urls'
@@ -70,32 +73,35 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'frontend.wsgi.application'
-
+ASGI_APPLICATION = "frontend.routing.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 # Get DB credentials
-dbconfig = configparser.ConfigParser()
-dbconfig.sections()
-dbconfig.read('/etc/monitoring/dbconfig.ini')
-dbuser = dbconfig['configuration']['username']
-dbpass = dbconfig['configuration']['password']
-dbhost = dbconfig['configuration']['host']
-dbport = dbconfig['configuration']['port']
-dbauth = dbconfig['configuration']['auth']
-dbmech = dbconfig['configuration']['mech']
+# dbconfig = configparser.ConfigParser()
+# dbconfig.sections()
+# dbconfig.read('/etc/monitoring/dbconfig.ini')
+# dbuser = dbconfig['configuration']['username']
+# dbpass = dbconfig['configuration']['password']
+# dbhost = dbconfig['configuration']['host']
+# dbport = dbconfig['configuration']['port']
+# dbauth = dbconfig['configuration']['auth']
+# dbmech = dbconfig['configuration']['mech']
+
+dbuser = 'senne'
+dbpass = 'senneatmonitoring'
+dbhost = 'localhost'
+dbport = '27071'
+dbauth = 'admin'
+dbmech = 'SCRAM-SHA-1'
 
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'monitoring',
 	    'HOST': dbhost,
-	    'PORT': int(dbport),
-	    'USER': dbuser,
-	    'PASSWORD': dbpass,
-	    'AUTH-SOURCE': dbauth,
-	    'AUTH_MECHANISM': dbmech,
+	    # 'PORT': int(dbport),
         'ENFORCE_SCHEMA': False
     }
 }
@@ -136,5 +142,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'), 'localui/dashboard/static/',
+]
 
 STATIC_URL = '/static/'

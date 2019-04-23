@@ -1,29 +1,167 @@
 {% load static %}
-<!-- Styles -->
-<link href='{% static 'dashboard/lib/css/bootstrap-4.3.1.min.css' %}' rel='stylesheet' type='text/css' media='all'>
-<!-- Modal -->
-<div class='modal fade' id='detailModal' tabindex='-1' role='dialog' aria-labelledby='detailModalLabel' aria-hidden='true'>
-  <div class='modal-dialog' role='document'>
-    <div class='modal-content'>
-      <div class='modal-header'>
-        <h5 class='modal-title' id='detailModalLabel'>Sensor reading details</h5>
-        <button type='button' class='close' data-dismiss='modal' aria-label='Close'>
-          <span aria-hidden='true'>&times;</span>
-        </button>
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/bootstrap-4.3.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/styles/index.css' %}" media="all">
+  </head>
+  <!-- Body -->
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="#">
+        <img src="{% static 'dashboard/images/ju_logo.jpg' %}" width="35" height="35" class="d-inline-block align-top" alt="Jimma University Logo">
+        Jimma University
+      </a>
+      <div>
+        <div style="float:left">
+          <a class="navbar-brand" href="#">Data Center Dashboard</a>
+        </div>
+        <!-- Nav right dropdown -->
+        <div class="dropdown" style="float:right">
+          <button class="navbar-toggler" type="button" id="navMenuDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navMenuDropdown">
+            <a class="dropdown-item">MenuItem 1</a>
+            <a class="dropdown-item">MenuItem 2</a>
+            <a class="dropdown-item" data-toggle="modal" data-target="#settingsModal">Dashboard Settings</a>
+          </div>
+        </div>
       </div>
-      <div class='modal-body'>
-        <ul>
-            <li id='date'></li>
-            <li id='value'></li>
-        </ul>
+    </nav>
+    <!-- Main container -->
+    <div class="myContainer">
+      <!-- Dashboard -->
+      <div id="dashboard">
+        <!-- Grid -->
+        <div id="gridArea"></div>
       </div>
+      <!-- Settings modal -->
+      <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <!-- Modal header -->
+            <div class="modal-header">
+              <h5 class="modal-title mx-auto" id="settingsModalLabel">Dashboard Settings</h5>
+            </div>
+            <!-- Modal body -->
+            <div id="settings" class="modal-body">
+              <!-- Grid size controls -->
+              <div id="gridControls">
+                <h6>Grid size:</h6>
+                <!-- Rows -->
+                <div class="form-group row">
+                  <label class="col-sm-6 col-form-label">Number of rows:</label>
+                  <div class="dropdown col-sm-6">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="rowDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      0
+                    </button>
+                    <div id="rowMenu" class="dropdown-menu" aria-labelledby="rowDropdown">
+                      <a class="dropdown-item">1</a>
+                      <a class="dropdown-item">2</a>
+                      <a class="dropdown-item">3</a>
+                    </div>
+                  </div>
+                </div>
+                <!-- Columns -->
+                <div class="form-group row">
+                  <label class="col-sm-6 col-form-label">Number of columns:</label>
+                  <div class="dropdown col-sm-6">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="columnDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      0
+                    </button>
+                    <div id="columnMenu" class="dropdown-menu" aria-labelledby="columnDropdown">
+                      <a class="dropdown-item">1</a>
+                      <a class="dropdown-item">2</a>
+                      <a class="dropdown-item">3</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Dashboard controls -->
+              <div id="dashboardControls">
+                <h6>Dashboard controls:</h6>
+                <!-- Refresh settings -->
+                <div class="form-group row">
+                  <label class="col-sm-6 col-form-label">Refresh time:</label>
+                  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="refreshDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    5 Minutes
+                  </button>
+                  <div id="refreshMenu" class="dropdown-menu" aria-labelledby="refreshDropdown">
+                    <a class="dropdown-item">10 Seconds</a>
+                    <a class="dropdown-item">5 Minutes</a>
+                  </div>
+                </div>
+                <!-- Scope settings -->
+                <div class="form-group row">
+                  <label class="col-sm-6 col-form-label">Graph scope:</label>
+                  <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="scopeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    15 Minutes
+                  </button>
+                  <div id="scopeMenu" class="dropdown-menu" aria-labelledby="scopeDropdown">
+                    <a class="dropdown-item">15 Minutes</a>
+                    <a class="dropdown-item">1 Hour</a>
+                    <a class="dropdown-item">1 Day</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Modal footer -->
+            <div id="saveSettings" class="modal-footer">
+              <button class="btn btn-secondary btn-sm mr-auto">Cancel</button>
+              <button class="btn btn-secondary btn-sm">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Detail modal -->
+      <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <!-- Modal header -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="detailModalLabel">Sensor reading details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+              <ul>
+                <li id="date"></li>
+                <li id="value"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+      <div id="testing">
+        <p>
+          <i class="fas fa-cogs"></i>
+        </p>
+      </div>
+
+
+
+
+
+
+
     </div>
-  </div>
-</div>
-<div id='graph'></div>
-<!-- Scripts -->
-<script src='{% static 'dashboard/lib/js/jquery-3.3.1.min.js' %}' type='text/javascript'></script>
-<script src='{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}' type='text/javascript'></script>
-<script src='{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}' type='text/javascript'></script>
-<script src='{% static 'dashboard/js/index-d3.js' %}' type='text/javascript'></script>
-<script src='{% static 'dashboard/js/index.js' %}' type='text/javascript'></script>
+    <!-- Scripts -->
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/popper-1.15.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/graph.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/gridcell.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/index.js' %}"></script>
+  </body>
+</html>

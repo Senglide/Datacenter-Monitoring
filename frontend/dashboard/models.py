@@ -9,7 +9,8 @@ class Abstract_Reading_Collection(models.Model):
     sensor = models.IntegerField()
     sensor_type = models.CharField(max_length=15)
     sensor_value = models.IntegerField()
-    datetime = models.DateTimeField()
+    date = models.DateField()
+    time = models.TimeField()
 
     class Meta:
         abstract = True

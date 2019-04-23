@@ -1,0 +1,8 @@
+.myContainer {
+    width: 90%;
+    margin: 0% auto 0% auto;
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
