@@ -2,14 +2,14 @@ class Graph {
     // Constructor
     constructor(divId, rack, s_type, connectionSettings) {
         // Graph global variables
-        this.x, this.y, this.xAxis, this.yAxis, this.area, this.line, this.dot, this.chart, this.data, this.extremeData,
-        this.divId = '#' + divId + 'Graph',
+        this.x, this.y, this.xAxis, this.yAxis, this.area, this.line, this.dot, this.chart, this.data, this.predictions, this.extremeData,
+        this.divId = '#' + divId,
         this.rack = rack,
         this.s_type = s_type,
         this.connectionSettings = connectionSettings,
-        this.margin = {top: 40, right: 30, bottom: 30, left: 50},
+        this.margin = {top: 10, right: 30, bottom: 30, left: 50},
         this.width = $(this.divId).width() - this.margin.left - this.margin.right,
-        this.height = 300 - this.margin.top - this.margin.bottom;
+        this.height = 200 - this.margin.top - this.margin.bottom;
     }
 
     // Update connectionSettings
@@ -17,10 +17,17 @@ class Graph {
         this.connectionSettings = {'resetString': 'get_newest_readings/' + this.rack + '/' + this.s_type + '/90', 'refreshString': 'get_newest_readings/' + this.rack + '/' + this.s_type + '/30'};
     }
 
+    // Resize graph
+    resize() {
+        this.width = $(this.divId).width() - this.margin.left - this.margin.right,
+        this.height = 200 - this.margin.top - this.margin.bottom;
+    }
+
     // Get data for graph
     getData(classEnv = this, resetGraph, getAverage) {
         // Function variables
-        var newData = [];
+        var newData = [],
+            newPredictions = [];
         // Get new data
         $.ajax({
             type: 'GET',
@@ -36,8 +43,19 @@ class Graph {
                         newData.unshift(reading);
                     }
                 });
+                // Format new predictions
+                response.predictions.forEach(reading => {
+                    reading.datetime = new Date(reading.date + 'T' + reading.time);
+                    if(resetGraph) {
+                        classEnv.predictions.unshift(reading);
+                    } else {
+                        newPredictions.unshift(reading);
+                    }
+                });
                 // Add new data to existing data
                 classEnv.data = classEnv.data.concat(newData);
+                // Add new predictions to existing predictions
+                classEnv.predictions = classEnv.predictions.concat(newPredictions);
                 // Get averages if necessary
                 if(getAverage) {
                     classEnv.calculateExtremeData()
@@ -60,9 +78,11 @@ class Graph {
         this.extremeData = [];
         if(resetGraph) { 
             this.data = [];
+            this.predictions = [];
             return this.connectionSettings.resetString;
         } else { 
             this.data = this.data.slice(refreshSettings.amount, this.data.length);
+            this.predictions = this.predictions.slice(refreshSettings.amount, this.predictions.length);
             return this.connectionSettings.refreshString;
         }
     }
@@ -101,27 +121,25 @@ class Graph {
             .y0(this.height)
             .y1(function(d) { return classEnv.y(d.sensor_value); });
 
-        // Define line
+        // Define data line
         this.line = d3.line()
             .curve(d3.curveMonotoneX)
             .x(function(d) { return classEnv.x(d.datetime); })
             .y(function(d) { return classEnv.y(d.sensor_value); });
 
+        // Define predictions line
+        this.predictedLine = d3.line()
+            .curve(d3.curveMonotoneX)
+            .x(function(d) { return classEnv.x(d.datetime); })
+            .y(function(d) { return classEnv.y(d.sensor_value); });
+
         // Add svg to canvas
-        this.chart = d3.select(this.divId)
+        this.chart = d3.select(this.divId + 'Graph')
             .append('svg')
             .attr('width', this.width + this.margin.left + this.margin.right)
             .attr('height', this.height + this.margin.top + this.margin.bottom)
             .append('g')
             .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
-
-        // Graph title
-        this.chart.append('text')
-            .attr('x', (this.width / 2))             
-            .attr('y', 0 - (this.margin.top / 2))
-            .attr('text-anchor', 'middle')  
-            .style('font-size', '16px')
-            .text('Rack ' + this.rack + ': ' + this.getYLabel());
 
         // Label for the x axis
         this.chart.append('text')             
@@ -136,7 +154,7 @@ class Graph {
             .attr('x', 0 - (this.height / 2))
             .attr('dy', '1em')
             .style('text-anchor', 'middle')
-            .text(this.getYLabel());
+            .text(s_types.get(this.s_type));
 
         // Domains
         this.x.domain(d3.extent(this.data, function(d) { return d.datetime; }));
@@ -159,6 +177,15 @@ class Graph {
             .attr('stroke', '#69b3a2')
             .attr('stroke-width', 4)
             .attr('d', this.line(this.data));
+
+        // Append predictions line to chart
+        this.chart.append('path')
+            .data(this.predictions)
+            .attr('class', 'predictedLine')
+            .attr('fill', 'none')
+            .attr('stroke', '#FF4500')
+            .attr('stroke-width', 4)
+            .attr('d', this.predictedLine(this.predictions));
 
         // Append dots to chart
         this.dot = this.chart.append('g')
@@ -205,6 +232,9 @@ class Graph {
         this.chart.select(this.divId + ' .line')
             .duration(1000)
             .attr('d', this.line(this.data));
+        this.chart.select(this.divId + ' .predictedLine')
+            .duration(1000)
+            .attr('d', this.predictedLine(this.predictions));
         this.chart.select(this.divId + ' .xAxis')
             .duration(1000)
             .call(this.xAxis);
@@ -218,14 +248,5 @@ class Graph {
             .duration(1000)
             .attr('cx', function(d) { return classEnv.x(d.datetime); })
             .attr('cy', function(d) { return classEnv.y(d.sensor_value); });
-    }
-
-    getYLabel() {
-        switch(this.s_type) {
-            case 'temp':
-                return 'Temperature (°C)';
-            case 'hum':
-                return 'Humidity (%)';
-        }
     }
 }

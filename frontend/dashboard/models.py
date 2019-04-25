@@ -19,6 +19,14 @@ class Abstract_Reading_Collection(models.Model):
 class Rack_1(Abstract_Reading_Collection):
     pass
 
+# Model for the Rack 2 collection
+class Rack_2(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 3 collection
+class Rack_3(Abstract_Reading_Collection):
+    pass
+
 # Model for the Movement collection
 class Movement(Abstract_Reading_Collection):
     pass

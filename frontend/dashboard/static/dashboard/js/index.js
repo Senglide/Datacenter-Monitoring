@@ -1,88 +1,42 @@
 // Script variables
-var dashboardTimer,
+var dashboardTimer, backupSettings,
     getAverage = false,
-    doResetGrid = false,
     refreshSettings = {'time': 300000, 'amount': 30},
     connectionBlocks = {'prefix': 'get_newest_readings/', 'suffix': '/90'},
-    backupSettings = {'refresh': refreshSettings, 'connection': connectionBlocks},
     gridDimensions = {'rows': 0, 'columns': 0},
     racks = [1, 2, 3]
-    s_types = ['Temperature', 'Humidity'],
+    s_types = new Map([
+        ['temp', 'Temperature (°C)'],
+        ['Temperature (°C)', 'temp'],
+        ['hum', 'Humidity (%)'],
+        ['Humidity (%)', 'hum'],
+        ['pduPower', 'Power consumption (W)'],
+        ['Power consumption (W)', 'pduPower'],
+        ['pduStatus1', 'Top Amperage (A)'],
+        ['Top Amperage (A)', 'pduStatus1'],
+        ['pduStatus2', 'Bottom Amperage (A)'],
+        ['Bottom Amperage (A)', 'pduStatus2'],
+        ['pduStatusT', 'Total Amperage (A)'],
+        ['Total Amperage (A)', 'pduStatusT']
+    ]),
     gridcells = [];
 
-// Grid change handlers
-$('#rowMenu a').click(function() {
-    gridDimensions.rows = parseInt($(this).text());
-    doResetGrid = true;
-    $('#rowDropdown').html(gridDimensions.rows);
-});
-$('#columnMenu a').click(function() {
-    gridDimensions.columns = parseInt($(this).text());
-    doResetGrid = true;
-    $('#columnDropdown').html(gridDimensions.columns);
-});
-
-// Refresh toggle click handler
-$('#refreshMenu a').click(function() {
-    switch($(this).text()) {
-        case '10 Seconds':
-            refreshSettings.time = 10000;
-            refreshSettings.amount = 1;
-            break;
-        case '5 Minutes':
-            refreshSettings.time = 300000;
-            refreshSettings.amount = 30;
-            break;
-    }
-    $('#refreshDropdown').html($(this).text());
-});
-
-// Interval toggle click handler
-$('#scopeMenu a').click(function() {
-    switch($(this).text()) {
-        case '15 Minutes':
-            connectionBlocks.prefix = 'get_newest_readings/';
-            connectionBlocks.suffix = '/90'
-            getAverage = false;
-            break;
-        case '1 Hour':
-            connectionBlocks.prefix = 'get_newest_readings/';
-            connectionBlocks.suffix = '/360'
-            getAverage = true;
-            break;
-        case '1 Day':
-            connectionBlocks.prefix = 'get_todays_readings/';
-            connectionBlocks.suffix = '';
-            getAverage = true;
-            break;
-    }
-    $('#scopeDropdown').html($(this).text());
-});
-
-// Save settings click handler
-$('#saveSettings button').click(function() {
-    if($(this).text() == 'Cancel') {
-        refreshSettings = backupSettings.refresh;
-        connectionSettings = backupSettings.connection;
-    } else {
-        if(doResetGrid) {
-            resetGrid();
-            doResetGrid = false;
+// Set backup settings
+function setBackupSettings() {
+    backupSettings = {
+        'grid': {
+            'dimensions': gridDimensions,
+            'rowString': $('#rowDropdown').text(),
+            'columnString': $('#columnDropdown').text()
+        },
+        'controls': {
+            'refresh': refreshSettings,
+            'connect': connectionBlocks,
+            'refreshString': $('#refreshDropdown').text(),
+            'scopeString': $('#scopeDropdown').text()
         }
-        if(gridcells.length > 0) {
-            gridcells.forEach(gridcell => {
-                if(gridcell.graph) {
-                    gridcell.graph.connectionSettings.refreshString = 'get_newest_readings/' + gridcell.graph.rack + '/' + gridcell.graph.s_type + '/' + refreshSettings.amount;
-                    gridcell.graph.connectionSettings.resetString = connectionBlocks.prefix + gridcell.graph.rack + '/' + gridcell.graph.s_type + connectionBlocks.suffix;
-                }
-            });
-        }
-        backupSettings.refresh = refreshSettings
-        backupSettings.connection = connectionBlocks
-        resetGraphs();
-    }
-    $('#settingsModal').modal('toggle');
-});
+    };
+}
 
 // Create dashboard grid
 function getGrid(rows = gridDimensions.rows, columns = gridDimensions.columns) {
@@ -91,15 +45,27 @@ function getGrid(rows = gridDimensions.rows, columns = gridDimensions.columns) {
         gridString += '<div class="row">';
         for(var j = 1; j <= columns; j++) {
             var gridcellId = 'r' + i + 'c' + j;
-            var gridcell = new Gridcell(gridcellId);
-            gridcells.push({'gridcellId': gridcellId, 'gridcell': gridcell});
+            var newGridcell = null;
+            if(gridcells.length > 0) {
+                gridcells.forEach(gridcell => {
+                    if(gridcell.gridcellId == gridcellId) {
+                        newGridcell = gridcell;
+                    }
+                });
+            }
+            if(newGridcell == null) {
+                newGridcell = new Gridcell(gridcellId);
+                gridcells.push(newGridcell);
+            }
             gridString += '<div' + ' id="' + gridcellId + '" class="columns ' + getColumnClass(columns) + '">';
-            gridString += gridcell.getHtml();
+            gridString += newGridcell.getHtml();
             gridString += '</div>';
         }
         gridString += '</div>';
     }
     $('#gridArea').html(gridString);
+    $('.graphTab').attr('src', '/static/dashboard/images/chart-area.svg');
+    $('.settingsTab').attr('src', '/static/dashboard/images/cogs.svg');
 }
 
 // Define column width
@@ -127,6 +93,7 @@ function resetGraphs() {
     }
     gridcells.forEach(gridcell => {
         if(gridcell.graph) {
+            gridcell.graph.resize();
             gridcell.graph.getData(undefined, true, getAverage);
         }
     });
@@ -144,39 +111,7 @@ function resetTimer() {
     }, refreshSettings.time);
 }
 
-// Graph setup handler
-$('#gridArea').on('click', '.gridcellDropdown a' ,function() {
-    gridcells.forEach(gridcell => {
-        if(gridcell.gridcellId == $(this).parent().parent().parent().parent().attr('id')) {
-            if($(this).attr('class').includes('rackDropdown-item')) {
-                gridcell.rack = parseInt($(this).text().substring(5, 6));
-                $(this).parent().siblings('button').text('Rack ' + gridcell.rack);
-            } else {
-                switch($(this).text()) {
-                    case 'Temperature':
-                        gridcell.s_type = 'temp';
-                        break;
-                    case 'Humidity':
-                        gridcell.s_type = 'hum';
-                        break;
-                }
-                $(this).parent().siblings('button').text($(this).text());
-            }
-            if(gridcell.rack && gridcell.s_type) {
-                if(gridcell.graph) {
-                    gridcell.graph.rack = gridcell.rack;
-                    gridcell.graph.s_type = gridcell.s_type;
-                    gridcell.graph.updateConnectionSettings();
-                } else {
-                    var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount}
-                    var graph = new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo)
-                    gridcell.graph = graph;
-                }
-                resetGraphs();
-            }
-        }
-    });
-});
+// Testing
 
 // Startup script
 getGrid();
