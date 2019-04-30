@@ -8,7 +8,7 @@ import datetime
 import requests
 import random
 
-# sys.path.insert(0, '/home/senne/datacenter-monitoring/database/code')
+sys.path.insert(0, '/home/senne/datacenter-monitoring/database/code')
 from reading_class import Reading
 from db_writer import write_reading
 
