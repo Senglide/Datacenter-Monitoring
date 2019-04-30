@@ -7,7 +7,7 @@ import pymongo
 from pymongo import MongoClient
 
 # Script variables
-config_location = '/etc/monitoring/dbconfig.ini'
+config_location = '/etc/monitoring/dbWriterConfig.ini'
 db_name = 'monitoring'
 
 # Get db credentials from config file
