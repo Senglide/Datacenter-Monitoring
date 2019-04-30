@@ -81,7 +81,7 @@ ASGI_APPLICATION = "frontend.routing.application"
 # Get DB credentials
 dbconfig = configparser.ConfigParser()
 dbconfig.sections()
-dbconfig.read('/etc/monitoring/dbReaderConfig.ini')
+dbconfig.read('/etc/monitoring/dbWriterConfig.ini')
 dbuser = dbconfig['configuration']['username']
 dbpass = dbconfig['configuration']['password']
 dbhost = dbconfig['configuration']['host']

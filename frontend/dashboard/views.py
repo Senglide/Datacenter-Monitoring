@@ -18,51 +18,43 @@ def index(request):
     return render(request, 'dashboard/index.html')
 
 # Grid testing page
-def testing(request):
-    return render(request, 'dashboard/testing.html')
+def detail(request):
+    return render(request, 'dashboard/detail.html')
 
 # Get newest readings
 def get_newest_readings(request, rack, s_type, amount):
-    dbRack = getRack(rack)
+    dbRack = get_rack(rack)
     readings = dbRack.objects.filter(sensor_type=s_type).order_by('-_id')[:amount]
+    return JsonResponse(format_readings(readings))
+
+# Get readings based on date
+def get_readings_by_date(request, rack, s_type, r_date):
+    date = datetime.datetime.strptime(r_date, '%d-%m-%Y').date()
+    dbRack = get_rack(rack)
+    readings = dbRack.objects.filter(sensor_type=s_type).filter(date__contains=date).order_by('time').reverse()
+    return JsonResponse(format_readings(readings))
+
+def get_rack(rack):
+    return {
+        '1': Rack_1,
+        '2': Rack_2,
+        '3': Rack_3
+    }[str(rack)]
+
+def format_readings(readings):
     data = []
     predictions = []
     for reading in readings:
-        data.append({
+        formatted_reading = {
+            'id': str(reading._id),
             'sensor_value': reading.sensor_value,
             'date': reading.date,
             'time': reading.time
-        })
-        predictions.append({
-            'sensor_value': reading.sensor_value - 3,
-            'date': reading.date,
-            'time': reading.time
-        })
-    json_data = {'readings': data, 'predictions': predictions}
-    return JsonResponse(json_data)
+        }
+        data.append(formatted_reading)
+        predictions.append(formatted_reading)
 
-def getRack(rack):
-    if(rack == 1):
-        return Rack_1
-    if(rack == 2):
-        return Rack_2
-    if(rack == 3):
-        return Rack_3
-
-# Get newest readings
-def get_todays_readings(request, rack, s_type):
-    today = str(datetime.datetime.now().date())
-    dbRack = getRack(rack)
-    readings = dbRack.objects.filter(sensor_type=s_type).filter(date__contains=today).order_by('time').reverse()
-    data = []
-    for reading in readings:
-        data.append({
-            'sensor_value': reading.sensor_value,
-            'date': reading.date,
-            'time': reading.time
-        })
-    json_data = {'readings': data}
-    return JsonResponse(json_data)
+    return {'readings': data, 'predictions': predictions}
 
 # Alarm api link
 @csrf_exempt

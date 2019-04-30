@@ -1,12 +1,13 @@
 class Graph {
     // Constructor
-    constructor(divId, rack, s_type, connectionSettings) {
+    constructor(divId, rack, s_type, connectionSettings, detailId) {
         // Graph global variables
-        this.x, this.y, this.xAxis, this.yAxis, this.area, this.line, this.dot, this.chart, this.data, this.predictions, this.extremeData,
+        this.x, this.y, this.xAxis, this.yAxis, this.area, this.line, this.dot, this.chart, this.data, this.drawnData, this.predictions, this.extremeData,
         this.divId = '#' + divId,
         this.rack = rack,
         this.s_type = s_type,
         this.connectionSettings = connectionSettings,
+        this.detailId = detailId;
         this.margin = {top: 10, right: 30, bottom: 30, left: 50},
         this.width = $(this.divId).width() - this.margin.left - this.margin.right,
         this.height = 200 - this.margin.top - this.margin.bottom;
@@ -56,11 +57,24 @@ class Graph {
                 classEnv.data = classEnv.data.concat(newData);
                 // Add new predictions to existing predictions
                 classEnv.predictions = classEnv.predictions.concat(newPredictions);
+                // Get detail scope if necessary
+                if(classEnv.detailId) {
+                    var detailIndex;
+                    for(var i = 0; i < classEnv.data.length; i++) {
+                        if(classEnv.data[i].id == classEnv.detailId) {
+                            detailIndex = i;
+                        }
+                    }
+                    classEnv.drawnData = classEnv.data.slice(detailIndex - 360, detailIndex);
+                    classEnv.drawnData = classEnv.drawnData.concat(classEnv.data.slice(detailIndex, detailIndex + 360));
+                } else {
+                    classEnv.drawnData = classEnv.data.slice();
+                }
                 // Get averages if necessary
                 if(getAverage) {
                     classEnv.calculateExtremeData()
                 } else {
-                    classEnv.extremeData = classEnv.data.slice();
+                    classEnv.extremeData = classEnv.drawnData.slice();
                 }
                 // Finish composing data and call next function
                 if(resetGraph) {
@@ -93,12 +107,12 @@ class Graph {
         var averageOfValues,
             totalOfValues = 0;
         // Calculate average value
-        this.data.forEach(reading => {
+        this.drawnData.forEach(reading => {
             totalOfValues += reading.sensor_value;
         });
-        averageOfValues = totalOfValues / this.data.length;
+        averageOfValues = totalOfValues / this.drawnData.length;
         // Add odd values to extremeData array
-        this.data.forEach(reading => {
+        this.drawnData.forEach(reading => {
             if(reading.sensor_value < averageOfValues -5 || reading.sensor_value > averageOfValues + 5) {
                 this.extremeData.push(reading);
             }
@@ -157,35 +171,35 @@ class Graph {
             .text(s_types.get(this.s_type));
 
         // Domains
-        this.x.domain(d3.extent(this.data, function(d) { return d.datetime; }));
-        this.y.domain([0, d3.max(this.data, function(d) { return +d.sensor_value; }) + 5]);
+        this.x.domain(d3.extent(this.drawnData, function(d) { return d.datetime; }));
+        this.y.domain([0, d3.max(this.drawnData, function(d) { return +d.sensor_value; }) + 5]);
 
         // Append area to chart
         this.chart.append('path')
-            .data(this.data)
+            .data(this.drawnData)
             .attr('class', 'area')
             .attr('fill', '#69b3a2')
             .attr('fill-opacity', .3)
             .attr('stroke', 'none')
-            .attr('d', this.area(this.data));
+            .attr('d', this.area(this.drawnData));
 
         // Append line to chart
         this.chart.append('path')
-            .data(this.data)
+            .data(this.drawnData)
             .attr('class', 'line')
             .attr('fill', 'none')
             .attr('stroke', '#69b3a2')
             .attr('stroke-width', 4)
-            .attr('d', this.line(this.data));
+            .attr('d', this.line(this.drawnData));
 
         // Append predictions line to chart
-        this.chart.append('path')
-            .data(this.predictions)
-            .attr('class', 'predictedLine')
-            .attr('fill', 'none')
-            .attr('stroke', '#FF4500')
-            .attr('stroke-width', 4)
-            .attr('d', this.predictedLine(this.predictions));
+        // this.chart.append('path')
+        //     .data(this.predictions)
+        //     .attr('class', 'predictedLine')
+        //     .attr('fill', 'none')
+        //     .attr('stroke', '#FF4500')
+        //     .attr('stroke-width', 4)
+        //     .attr('d', this.predictedLine(this.predictions));
 
         // Append dots to chart
         this.dot = this.chart.append('g')
@@ -200,10 +214,31 @@ class Graph {
                 .attr('cx', function(d) { return classEnv.x(d.datetime); })
                 .attr('cy', function(d) { return classEnv.y(d.sensor_value); })
                 .attr('r', 3)
+                .each(function(d) {
+                    var head = d3.select(this);
+                    if(classEnv.detailId) {
+                        if(d.id == classEnv.detailId) {
+                            head.attr('fill', 'green');
+                        }
+                    }
+                })
                 .on('click', function(d) {
                     $('#date').html('Date of sensor reading: ' + d.datetime);
                     $('#value').html('Value of sensor reading: ' + d.sensor_value);
                     $('#detailModal').modal();
+                    if(!classEnv.detailId) {
+                        $('#moreInfo').on('click', function() {
+                            var readingDetails = {
+                                'id': d.id,
+                                'rack': classEnv.rack,
+                                's_type': classEnv.s_type,
+                                'datetime': d.datetime
+                            };
+                            console.log(readingDetails);
+                            sessionStorage.setItem('readingDetails', JSON.stringify(readingDetails));
+                            window.open('detail');
+                        });
+                    }
                 });
 
         // Add X and Y axis to svg
@@ -219,8 +254,8 @@ class Graph {
     // Update graph
     updateGraph(classEnv = this) {
         // Domains
-        this.x.domain(d3.extent(this.data, function(d) { return d.datetime; }));
-        this.y.domain([0, d3.max(this.data, function(d) { return +d.sensor_value; }) + 5]);
+        this.x.domain(d3.extent(this.drawnData, function(d) { return d.datetime; }));
+        this.y.domain([0, d3.max(this.drawnData, function(d) { return +d.sensor_value; }) + 5]);
 
         // Select section where to apply changes
         this.chart = d3.select(this.divId + ' svg').transition();
@@ -228,10 +263,10 @@ class Graph {
         // Make changes
         this.chart.select(this.divId + ' .area')
             .duration(1000)
-            .attr('d', this.area(this.data));
+            .attr('d', this.area(this.drawnData));
         this.chart.select(this.divId + ' .line')
             .duration(1000)
-            .attr('d', this.line(this.data));
+            .attr('d', this.line(this.drawnData));
         this.chart.select(this.divId + ' .predictedLine')
             .duration(1000)
             .attr('d', this.predictedLine(this.predictions));

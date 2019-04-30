@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/bootstrap-4.3.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/styles/detail.css' %}" media="all">
+  </head>
+  <!-- Body -->
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="#">
+        <img src="{% static 'dashboard/images/ju_logo.jpg' %}" width="35" height="35" class="d-inline-block align-top" alt="Jimma University Logo">
+        Jimma University
+      </a>
+      <div>
+        <div style="float:left">
+          <a class="navbar-brand" href="#">Data Center Details</a>
+        </div>
+        <!-- Nav right dropdown -->
+        <div class="dropdown" style="float:right">
+          <button class="navbar-toggler" type="button" id="navMenuDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navMenuDropdown">
+            <a class="dropdown-item">MenuItem 1</a>
+            <a class="dropdown-item">MenuItem 2</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <!-- Main container -->
+    <div class="myContainer">
+      <div id="relatedReadings" class="row">
+        <div class="col-md-12" id="relatedReadingsGraph"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Header</th>
+            </tr>
+          </thead>
+          <tbody id="detailBody">
+            <tr>
+              <td></td>
+              <td>Sensor Type 1</td>
+              <td>Sensor Type 2</td>
+            </tr>
+            <tr>
+              <td>Timestamp 1</td>
+              <td>Value</td>
+            </tr>
+            <tr>
+              <td>Timestamp 2</td>
+              <td>Value</td>
+            </tr>
+          </tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <!-- Detail modal -->
+      <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <!-- Modal header -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="detailModalLabel">Sensor reading details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+              <ul>
+                <li id="date"></li>
+                <li id="value"></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Scripts -->
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/popper-1.15.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/settings.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/graph.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/detail.js' %}"></script>
+  </body>
+</html>

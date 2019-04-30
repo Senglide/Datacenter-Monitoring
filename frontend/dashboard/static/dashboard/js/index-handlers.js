@@ -37,8 +37,9 @@ $('#scopeMenu a').click(function() {
             getAverage = true;
             break;
         case '1 Day':
-            connectionBlocks.prefix = 'get_todays_readings/';
-            connectionBlocks.suffix = '';
+            var today = new Date();
+            connectionBlocks.prefix = 'get_readings_by_date/';
+            connectionBlocks.suffix = '/' + today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
             getAverage = true;
             break;
     }
@@ -98,8 +99,8 @@ $('#gridArea').on('click', '.gridcellDropdown a' ,function() {
                     gridcell.graph.s_type = gridcell.s_type;
                     gridcell.graph.updateConnectionSettings();
                 } else {
-                    var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount}
-                    var graph = new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo)
+                    var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount};
+                    var graph = new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo, undefined);
                     gridcell.graph = graph;
                 }
                 $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack + ': ' + s_types.get(gridcell.s_type));
