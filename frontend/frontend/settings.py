@@ -79,29 +79,26 @@ ASGI_APPLICATION = "frontend.routing.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 # Get DB credentials
-# dbconfig = configparser.ConfigParser()
-# dbconfig.sections()
-# dbconfig.read('/etc/monitoring/dbconfig.ini')
-# dbuser = dbconfig['configuration']['username']
-# dbpass = dbconfig['configuration']['password']
-# dbhost = dbconfig['configuration']['host']
-# dbport = dbconfig['configuration']['port']
-# dbauth = dbconfig['configuration']['auth']
-# dbmech = dbconfig['configuration']['mech']
-
-dbuser = 'senne'
-dbpass = 'senneatmonitoring'
-dbhost = 'localhost'
-dbport = '27071'
-dbauth = 'admin'
-dbmech = 'SCRAM-SHA-1'
+dbconfig = configparser.ConfigParser()
+dbconfig.sections()
+dbconfig.read('/etc/monitoring/dbReaderConfig.ini')
+dbuser = dbconfig['configuration']['username']
+dbpass = dbconfig['configuration']['password']
+dbhost = dbconfig['configuration']['host']
+dbport = dbconfig['configuration']['port']
+dbauth = dbconfig['configuration']['auth']
+dbmech = dbconfig['configuration']['mech']
 
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'monitoring',
 	    'HOST': dbhost,
-	    # 'PORT': int(dbport),
+	    'PORT': int(dbport),
+        'USER': dbuser,
+        'PASSWORD': dbpass,
+        'AUTH_SOURCE': dbauth,
+        'AUTH_MECHANISM': dbmech,
         'ENFORCE_SCHEMA': False
     }
 }
@@ -144,7 +141,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'), 'localui/dashboard/static/',
+    os.path.join(BASE_DIR, 'static'), 'frontend/dashboard/static/',
 ]
 
 STATIC_URL = '/static/'

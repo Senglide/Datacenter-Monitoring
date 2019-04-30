@@ -22,7 +22,7 @@ dbauth = dbconfig['configuration']['auth']
 dbmech = dbconfig['configuration']['mech']
 
 # Connect to db
-client = MongoClient('mongodb://%s:%s@%s:%s/%s?authMechanism=%s' % (dbuser, dbpass, dbhost, dbport, dbauth, dbmech))
+client = MongoClient(dbhost, username=dbuser, password=dbpass, authSource=dbauth, authMechanism=dbmech)
 db = client[db_name]
 
 def write_reading(reading, collection_name):
