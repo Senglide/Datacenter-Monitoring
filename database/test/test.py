@@ -1,51 +1,98 @@
 # Script used for testing because the mqtt broker doesn't throw python errors and exceptions
 
+# Imports
 import json
 import threading
 import sys
+import datetime
+import requests
+import random
 
-from random import randint
-
-sys.path.insert(0, '/home/senne/datacenter-monitoring/database/code')
+# sys.path.insert(0, '/home/senne/datacenter-monitoring/database/code')
 from reading_class import Reading
 from db_writer import write_reading
 
-def write_data(myobj):
-    str_myobj = str(myobj)
-    str_myobj = str_myobj.replace("'", '"')
-    json_myobj = json.loads(str_myobj)
+class This_Class:
+    def __init__(self):
+        self.alarm = False
+        self.alarm_int = 0
 
-    for reading in myobj['readings']:
-        reading = reading.copy()
-        new_reading = Reading(
-            reading['rack'],
-            reading['sensor'],
-            reading['sensor_type'],
-            reading['sensor_value']
-        )
-        new_writeable_reading = new_reading.make_writeable()
-        print(new_writeable_reading)
-        write_reading(new_writeable_reading, 'dashboard_rack_' + str(reading['rack']))
+    def write_data(self, myobj):
+        str_myobj = str(myobj)
+        str_myobj = str_myobj.replace("'", '"')
 
-def insert_data():
-    threading.Timer(10.0, insert_data).start()
-    sensor_value = randint(15, 35)
-    myobj = {
-        "readings": [
-            {"rack": 1, "sensor": 1, "sensor_type": "temp", "sensor_value": sensor_value},
-        ]
-    }
-    write_data(myobj)
+        # print(str_myobj)
 
-insert_data()
+        json_myobj = json.loads(str_myobj)
 
+        # print(json_myobj)
+        
+        currentDateTime = datetime.datetime.now()
+        date = str(currentDateTime.date())
+        time = str(currentDateTime.time())
 
+        for reading in myobj['readings']:
+            reading = reading.copy()
+            new_reading = Reading(
+                reading['rack'],
+                reading['sensor'],
+                reading['sensor_type'],
+                reading['sensor_value'],
+                date,
+                time
+            )
+            new_writeable_reading = new_reading.make_writeable()
+            write_reading(new_writeable_reading, 'dashboard_rack_' + str(reading['rack']))
 
+    def insert_data(self):
+        threading.Timer(10.0, self.insert_data).start()
+        readings = []
+        for x in range(1, 4):
+            temp_sensor_value = random.randint(15, 35)
+            hum_sensor_value = random.randint(75, 95)
+            pow_sensor_value = random.randint(200, 250)
+            s1_sensor_value = random.randint(25, 35)
+            s2_sensor_value = random.randint(25, 35)
+            st_sensor_value = random.randint(50, 70)
+            movement_alarm_value = random.getrandbits(1)
+            smoke_alarm_value = random.getrandbits(1)
 
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "temp", "sensor_value": temp_sensor_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "hum", "sensor_value": hum_sensor_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "pduPower", "sensor_value": pow_sensor_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "pduStatus1", "sensor_value": s1_sensor_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "pduStatus2", "sensor_value": s2_sensor_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "pduStatusT", "sensor_value": st_sensor_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "smoke", "sensor_value": movement_alarm_value})
+            readings.append({"rack": x, "sensor": 1, "sensor_type": "movement", "sensor_value": smoke_alarm_value})
 
+        myobj = {
+            "readings": readings
+        }
 
+        # myobj2 = {
+        #     "readings": [
+        #         {"rack": 1, "sensor": 1, "sensor_type": "temp", "sensor_value": temp_sensor_value},
+        #         {"rack": 1, "sensor": 1, "sensor_type": "hum", "sensor_value": hum_sensor_value}
+        #     ]
+        # }
 
+        # print(myobj)
+        # print(myobj2)
+        # if(alarm_value != self.alarm):
+        #     print('value: ' + str(alarm_value))
+        #     session = requests.Session()
+        #     session.trust_env = False
+        #     r = session.post('http://localhost:8000/dashboard/alarm/' + str(self.alarm_int))
+        #     print('b_alarm: ' + str(self.alarm) + ', b_alarm_int: ' + str(self.alarm_int))
+        #     self.alarm = not self.alarm
+        #     self.alarm_int = 1 - self.alarm_int
+        #     print('a_alarm: ' + str(self.alarm) + ', a_alarm_int: ' + str(self.alarm_int))
+        self.write_data(myobj)
+        # self.write_data(myobj2)
 
+this_class = This_Class()
+this_class.insert_data()
 
 # myobj = {
 #     "readings": [
