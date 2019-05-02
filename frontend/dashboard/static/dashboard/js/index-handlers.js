@@ -39,7 +39,7 @@ $('#scopeMenu a').click(function() {
         case '1 Day':
             var today = new Date();
             connectionBlocks.prefix = 'get_readings_by_date/';
-            connectionBlocks.suffix = '/' + today.getDate() + '-' + (today.getMonth() + 1) + '-' + today.getFullYear();
+            connectionBlocks.suffix = '/' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
             getAverage = true;
             break;
     }
@@ -83,7 +83,7 @@ $('#saveSettings button').click(function() {
 });
 
 // Graph setup handler
-$('#gridArea').on('click', '.gridcellDropdown a' ,function() {
+$('#gridArea').on('click', '.gridcellDropdown a' , function() {
     gridcells.forEach(gridcell => {
         if(gridcell.gridcellId == $(this).parent().parent().parent().parent().parent().parent().attr('id')) {
             if($(this).attr('class').includes('rackDropdown-item')) {
@@ -108,4 +108,9 @@ $('#gridArea').on('click', '.gridcellDropdown a' ,function() {
             }
         }
     });
+});
+
+// Nav click handler
+$('#detailLink').click(function() {
+    sessionStorage.setItem('getDetails', 'false');
 });

@@ -21,19 +21,28 @@ def index(request):
 def detail(request):
     return render(request, 'dashboard/detail.html')
 
-# Get newest readings
+# Get newest readings by rack and type
 def get_newest_readings(request, rack, s_type, amount):
     dbRack = get_rack(rack)
     readings = dbRack.objects.filter(sensor_type=s_type).order_by('-_id')[:amount]
-    return JsonResponse(format_readings(readings))
+    return JsonResponse(format_readings(readings, True))
 
-# Get readings based on date
+# Get readings by rack, date and type
 def get_readings_by_date(request, rack, s_type, r_date):
-    date = datetime.datetime.strptime(r_date, '%d-%m-%Y').date()
+    date = datetime.datetime.strptime(r_date, '%Y-%m-%d').date()
     dbRack = get_rack(rack)
     readings = dbRack.objects.filter(sensor_type=s_type).filter(date__contains=date).order_by('time').reverse()
-    return JsonResponse(format_readings(readings))
+    return JsonResponse(format_readings(readings, True))
 
+# Get readings by rack and date
+def get_all_readings_by_date(request, rack, r_date):
+    date = datetime.datetime.strptime(r_date, '%Y-%m-%d').date()
+    dbRack = get_rack(rack)
+    readings = dbRack.objects.filter(date__contains=date).order_by('time').reverse()
+    return JsonResponse(format_readings(readings, False))
+
+
+# Get the right model based on the requested rack
 def get_rack(rack):
     return {
         '1': Rack_1,
@@ -41,20 +50,27 @@ def get_rack(rack):
         '3': Rack_3
     }[str(rack)]
 
-def format_readings(readings):
+# Convert db responses to json data
+def format_readings(readings, get_predictions):
     data = []
-    predictions = []
+    if(get_predictions):
+        predictions = []
     for reading in readings:
         formatted_reading = {
             'id': str(reading._id),
             'sensor_value': reading.sensor_value,
+            'sensor_type': reading.sensor_type,
             'date': reading.date,
             'time': reading.time
         }
         data.append(formatted_reading)
-        predictions.append(formatted_reading)
+        if(get_predictions):
+            predictions.append(formatted_reading)
 
-    return {'readings': data, 'predictions': predictions}
+    if(get_predictions):
+        return {'readings': data, 'predictions': predictions}
+    else:
+        return {'readings': data}
 
 # Alarm api link
 @csrf_exempt

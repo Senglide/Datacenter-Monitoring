@@ -108,3 +108,5 @@ gridcells.push(testCell)
 getGrid();
 $('#' + testCell.gridcellId + 'Title').html('Rack ' + testCell.rack + ': ' + s_types.get(testCell.s_type));
 resetGraphs();
+$('#rowDropdown').html(gridDimensions.rows);
+$('#columnDropdown').html(gridDimensions.columns);

@@ -4,13 +4,14 @@
   <head>
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/bootstrap-4.3.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/fontawesome-5.8.1.min.css' %}" media="all">
     <link rel="stylesheet" type="text/css" href="{% static 'dashboard/styles/index.css' %}" media="all">
   </head>
   <!-- Body -->
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-light bg-light">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand">
         <img src="{% static 'dashboard/images/ju_logo.jpg' %}" width="35" height="35" class="d-inline-block align-top" alt="Jimma University Logo">
         Jimma University
       </a>
@@ -24,8 +25,8 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navMenuDropdown">
-            <a class="dropdown-item">MenuItem 1</a>
-            <a class="dropdown-item">MenuItem 2</a>
+            <a class="dropdown-item">Dashboard</a>
+            <a id="detailLink" class="dropdown-item" href="/dashboard/detail">Detail lookup</a>
             <a id="settingsTrigger" class="dropdown-item" data-toggle="modal" data-target="#settingsModal">Dashboard Settings</a>
           </div>
         </div>

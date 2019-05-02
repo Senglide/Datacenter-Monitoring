@@ -4,13 +4,15 @@
   <head>
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/bootstrap-4.3.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/fontawesome-5.8.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/tempusdominus-bootstrap-4.min.css' %}" media="all">
     <link rel="stylesheet" type="text/css" href="{% static 'dashboard/styles/detail.css' %}" media="all">
   </head>
   <!-- Body -->
   <body>
     <!-- Navbar -->
     <nav class="navbar navbar-light bg-light">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand homelink" href="/dashboard">
         <img src="{% static 'dashboard/images/ju_logo.jpg' %}" width="35" height="35" class="d-inline-block align-top" alt="Jimma University Logo">
         Jimma University
       </a>
@@ -24,37 +26,67 @@
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navMenuDropdown">
-            <a class="dropdown-item">MenuItem 1</a>
-            <a class="dropdown-item">MenuItem 2</a>
+            <a class="dropdown-item homelink" href="/dashboard">Dashboard</a>
+            <a class="dropdown-item">Detail lookup</a>
           </div>
         </div>
       </div>
     </nav>
     <!-- Main container -->
     <div class="myContainer">
+      <div class="row">
+        <div class="col-md-1 form-group">
+          <div class="input-group">
+            <div id="previousButton" class="input-group-prepend vertical">
+              <div class="input-group-text"><i class="fas fa-angle-double-left"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <div class="input-group date" id="datepicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#datepicker"/>
+              <div class="input-group-append" data-target="#datepicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="form-group">
+            <div class="input-group date" id="timepicker" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#timepicker"/>
+              <div class="input-group-append" data-target="#timepicker" data-toggle="datetimepicker">
+                <div class="input-group-text"><i class="far fa-clock"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="row">
+            <div id="detailRack" class="col-md-4"></div>
+            <div id="detailType" class="col-md-8"></div>
+          </div>
+        </div>
+        <div class="col-md-1 form-group">
+          <div class="input-group">
+            <div id="nextButton" class="input-group-append right vertical">
+              <div class="input-group-text"><i class="fas fa-angle-double-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="relatedReadings" class="row">
         <div class="col-md-12" id="relatedReadingsGraph"></div>
-        <table>
+      </div>
+      <div class="row">
+        <table class="col-md-12">
           <thead>
             <tr>
               <th>Header</th>
             </tr>
           </thead>
-          <tbody id="detailBody">
-            <tr>
-              <td></td>
-              <td>Sensor Type 1</td>
-              <td>Sensor Type 2</td>
-            </tr>
-            <tr>
-              <td>Timestamp 1</td>
-              <td>Value</td>
-            </tr>
-            <tr>
-              <td>Timestamp 2</td>
-              <td>Value</td>
-            </tr>
-          </tbody>
+          <tbody id="detailBody"></tbody>
           <tfoot></tfoot>
         </table>
       </div>
@@ -84,6 +116,8 @@
     <script type="text/javascript" src="{% static 'dashboard/lib/js/jquery-3.3.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/popper-1.15.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/moment-with-locales-2.24.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/tempusdominus-bootstrap-4.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/settings.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/graph.js' %}"></script>

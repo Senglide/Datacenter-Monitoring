@@ -3,7 +3,7 @@
     margin: 0% auto 0% auto;
 }
 
-.dropdown-item {
+.dropdown-item, nav a:first-child {
     cursor: pointer;
 }
 
