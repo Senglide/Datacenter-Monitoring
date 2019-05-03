@@ -24,3 +24,21 @@ td {
     position: absolute;
     transform: translate(0%, 12%);
 }
+
+#preloader {
+    margin-top: 250px;
+}
+
+.nav-tabs li:first-child {
+    width: 75%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.nav-tabs li:last-child, #previousButton, #nextButton {
+    cursor: pointer;
+}
+
+.nav {
+    margin: 15px 0px;
+}
