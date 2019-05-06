@@ -1,0 +1,5 @@
+[Unit]
+Description=Python script that receives data from the data center monitoring system
+[Service]
+ExecStart=/usr/local/bin/python3 /opt/monitoring/database/code/receive_data.py
+Wants=source_venv.service
