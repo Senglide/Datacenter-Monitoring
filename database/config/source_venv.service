@@ -1,4 +1,0 @@
-[Unit]
-Description=Bash script that activates the venv for the python script that receives data from the data center monitoring system
-[Service]
-ExecStart=/bin/bash /opt/monitoring/database/config/source_venv.sh
