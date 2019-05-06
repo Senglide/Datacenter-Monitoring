@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/python3
 
 # Receive data to be written to the database
 

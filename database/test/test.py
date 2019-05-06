@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/python3
 
 # Script used for testing because the mqtt broker doesn't throw python errors and exceptions
 
