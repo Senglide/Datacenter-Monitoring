@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Receive data to be written to the database
 
 # Imports

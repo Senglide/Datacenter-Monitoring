@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Script used for testing because the mqtt broker doesn't throw python errors and exceptions
 
 # Imports
