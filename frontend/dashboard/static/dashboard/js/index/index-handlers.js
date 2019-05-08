@@ -1,48 +1,25 @@
 // Grid change handlers
 $('#rowMenu a').click(function() {
-    gridDimensions.rows = parseInt($(this).text());
-    $('#rowDropdown').html(gridDimensions.rows);
+    gridDimensions.row = parseInt($(this).text());
+    $('#rowDropdown').html(gridDimensions.row);
 });
 $('#columnMenu a').click(function() {
-    gridDimensions.columns = parseInt($(this).text());
-    $('#columnDropdown').html(gridDimensions.columns);
+    gridDimensions.column = parseInt($(this).text());
+    $('#columnDropdown').html(gridDimensions.column);
 });
 
 // Refresh toggle click handler
 $('#refreshMenu a').click(function() {
-    switch($(this).text()) {
-        case '10 Seconds':
-            refreshSettings.time = 10000;
-            refreshSettings.amount = 1;
-            break;
-        case '5 Minutes':
-            refreshSettings.time = 300000;
-            refreshSettings.amount = 30;
-            break;
-    }
+    refreshSettings.time = dashboardSettingsOptions.get('refresh').get($(this).text()).time * 1000;
+    refreshSettings.amount = dashboardSettingsOptions.get('refresh').get($(this).text()).amount;
     $('#refreshDropdown').html($(this).text());
 });
 
 // Interval toggle click handler
 $('#scopeMenu a').click(function() {
-    switch($(this).text()) {
-        case '15 Minutes':
-            connectionBlocks.prefix = 'get_newest_readings/';
-            connectionBlocks.suffix = '/90'
-            getAverage = false;
-            break;
-        case '1 Hour':
-            connectionBlocks.prefix = 'get_newest_readings/';
-            connectionBlocks.suffix = '/360'
-            getAverage = true;
-            break;
-        case '1 Day':
-            var today = new Date();
-            connectionBlocks.prefix = 'get_readings_by_date/';
-            connectionBlocks.suffix = '/' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-            getAverage = true;
-            break;
-    }
+    connectionBlocks.prefix = dashboardSettingsOptions.get('scope').get($(this).text()).prefix;
+    connectionBlocks.suffix = dashboardSettingsOptions.get('scope').get($(this).text()).suffix;
+    getAverage =  dashboardSettingsOptions.get('scope').get($(this).text()).getAverage;
     $('#scopeDropdown').html($(this).text());
 });
 
@@ -70,7 +47,7 @@ $('#saveSettings button').click(function() {
         getGrid();
         if(gridcells.length > 0) {
             gridcells.forEach(gridcell => {
-                if(gridcell.graph) {
+                if(gridcell.graph && gridcell.graphType == 'Linechart') {
                     gridcell.graph.connectionSettings.refreshString = 'get_newest_readings/' + gridcell.graph.rack + '/' + gridcell.graph.s_type + '/' + refreshSettings.amount;
                     gridcell.graph.connectionSettings.resetString = connectionBlocks.prefix + gridcell.graph.rack + '/' + gridcell.graph.s_type + connectionBlocks.suffix;
                 }
@@ -85,23 +62,34 @@ $('#saveSettings button').click(function() {
 // Graph setup handler
 $('#gridArea').on('click', '.gridcellDropdown a' , function() {
     gridcells.forEach(gridcell => {
+        var originalGraphType;
         if(gridcell.gridcellId == $(this).parent().parent().parent().parent().parent().parent().attr('id')) {
+            // Check which dropdown has been clicked and set value
             if($(this).attr('class').includes('rackDropdown-item')) {
                 gridcell.rack = parseInt($(this).text());
-                $(this).parent().siblings('button').text(gridcell.rack);
-            } else {
+            } else if($(this).attr('class').includes('typeDropdown-item')) {
                 gridcell.s_type = s_types.get($(this).text());
-                $(this).parent().siblings('button').text($(this).text());
+            } else {
+                originalGraphType = gridcell.graphType;
+                gridcell.graphType = $(this).text();
             }
-            if(gridcell.rack && gridcell.s_type) {
+            $(this).parent().siblings('button').text($(this).text());
+            // Check if all the requirements for a graph have been fulfilled
+            if(gridcell.rack && gridcell.s_type && gridcell.graphType) {
+                // If graph exists, update, else, create new
                 if(gridcell.graph) {
-                    gridcell.graph.rack = gridcell.rack;
-                    gridcell.graph.s_type = gridcell.s_type;
-                    gridcell.graph.updateConnectionSettings();
+                    if(gridcell.graphType == originalGraphType) {
+                        gridcell.graph.rack = gridcell.rack;
+                        gridcell.graph.s_type = gridcell.s_type;
+                        if(gridcell.graphType == 'Linechart') {
+                            gridcell.graph.updateConnectionSettings();   
+                        }
+                    } else {
+                        gridcell.graph.erase();
+                        gridcell.graph = createNewGraph(gridcell);
+                    }  
                 } else {
-                    var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount};
-                    var graph = new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo, undefined);
-                    gridcell.graph = graph;
+                    gridcell.graph = createNewGraph(gridcell);
                 }
                 $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack + ': ' + s_types.get(gridcell.s_type));
                 resetGraphs();
@@ -109,6 +97,17 @@ $('#gridArea').on('click', '.gridcellDropdown a' , function() {
         }
     });
 });
+
+// Create new graph for gridcell
+function createNewGraph(gridcell) {
+    switch(gridcell.graphType) {
+        case 'Linechart':
+            var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount};
+            return new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo, undefined);
+        case 'Gauge':
+            return new Gauge(gridcell.gridcellId, gridcell.rack, gridcell.s_type);
+    }
+}
 
 // Nav click handler
 $('#detailLink').click(function() {

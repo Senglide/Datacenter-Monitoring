@@ -27,36 +27,27 @@ $('#datepicker').on('change.datetimepicker', function(e) {
 $('#timepicker').on('change.datetimepicker', function(e) {
     var inputTime = new Date(e.date);
     var newTime = ('0' + inputTime.getHours()).slice(-2) + ':' + ('0' + inputTime.getMinutes()).slice(-2) + ':' + ('0' + inputTime.getSeconds()).slice(-2);
-    if(!detailReading.time) {
+    if(!detailReading.time || newTime.substring(0, 5) !== detailReading.time.substring(0, 5)) {
         detailReading.time = newTime;
-        if(detailsLoaded) {
-            checkDetailScope();
-        }
-    } else {
-        if(!detailsLoaded || newTime.substring(0, 5) !== detailReading.time.substring(0, 5)) {
-            detailReading.time = newTime;
-            if(detailReading.date) {
-                checkDetailScope();
-            }
-        }
+        checkDetailScope();
     }
 });
 
 // Set rack click handler
 $('#detailRack').on('click', '.detailRackMenu a' , function() {
-    detailReading.rack = $(this).text();
-    $(this).parent().siblings('button').text('Rack ' + detailReading.rack);
-    checkToGetReadings();
+    if(!detailReading.rack || detailReading.rack !== $(this).text()) {
+        detailReading.rack = $(this).text();
+        $(this).parent().siblings('button').text('Rack ' + detailReading.rack);
+        checkToGetReadings();
+    }
 });
 
 // Set type click handler
 $('#detailType').on('click', '.detailTypeMenu a' , function() {
-    detailReading.s_type = s_types.get($(this).text())
-    $(this).parent().siblings('button').text($(this).text());
-    if(detailsLoaded) {
+    if(!detailReading.s_type || detailReading.s_type !== s_types.get($(this).text())) {
+        detailReading.s_type = s_types.get($(this).text());
+        $(this).parent().siblings('button').text($(this).text());
         checkDetailScope();
-    } else {
-        checkToGetReadings();
     }
 });
 

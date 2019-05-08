@@ -1,8 +1,8 @@
 // Script variables
 var dashboardTimer, backupSettings,
-    refreshSettings = {'time': 300000, 'amount': 30},
-    connectionBlocks = {'prefix': 'get_newest_readings/', 'suffix': '/90'},
-    gridDimensions = {'rows': 1, 'columns': 1},
+    refreshSettings = {'time': dashboardSettingsOptions.get('refresh').get(defaultDashboardVariables.refresh).time * 1000, 'amount': dashboardSettingsOptions.get('refresh').get(defaultDashboardVariables.refresh).amount},
+    connectionBlocks = {'prefix': dashboardSettingsOptions.get('scope').get(defaultDashboardVariables.scope).prefix, 'suffix': dashboardSettingsOptions.get('scope').get(defaultDashboardVariables.scope).suffix},
+    gridDimensions = {'row': defaultDashboardVariables.row, 'column': defaultDashboardVariables.column},
     gridcells = [];
 
 // Set backup settings
@@ -23,7 +23,7 @@ function setBackupSettings() {
 }
 
 // Create dashboard grid
-function getGrid(rows = gridDimensions.rows, columns = gridDimensions.columns) {
+function getGrid(rows = gridDimensions.row, columns = gridDimensions.column) {
     var gridString = '';
     for(var i = 1; i <= rows; i++) {
         gridString += '<div class="row">';
@@ -77,8 +77,12 @@ function resetGraphs() {
     }
     gridcells.forEach(gridcell => {
         if(gridcell.graph) {
-            gridcell.graph.resize();
-            gridcell.graph.getData(undefined, true, getAverage);
+            if(gridcell.graphType == 'Linechart') {
+                gridcell.graph.resize();
+                gridcell.graph.getData(undefined, true, getAverage);    
+            } else if(gridcell.graphType == 'Gauge') {
+                gridcell.graph.getData(true);
+            }
         }
     });
     resetTimer();
@@ -89,24 +93,46 @@ function resetTimer() {
     dashboardTimer = setInterval(function() {
         gridcells.forEach(gridcell => {
             if(gridcell.graph) {
-                gridcell.graph.getData(undefined, false, getAverage);
+                if(gridcell.graphType == 'Linechart') {
+                    gridcell.graph.getData(undefined, false, getAverage);
+                } else if(gridcell.graphType == 'Gauge') {
+                    gridcell.graph.getData(false);
+                }
             }
         });
     }, refreshSettings.time);
 }
 
-// Testing
+// Create modal dropdowns
+function createModalDropdowns() {
+    dashboardSettingsOptions.forEach((settings, type) => {
+        var htmlString = '<button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="' + type + 'Dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' + defaultDashboardVariables[type] + '</button><div id="' + type + 'Menu" class="dropdown-menu" aria-labelledby="' + type + 'Dropdown">';
+        settings.forEach((setting, key) => {
+            if(type == 'row' || type == 'column') {
+                htmlString += '<a class="dropdown-item">' + setting + '</a>';
+            } else {
+                htmlString += '<a class="dropdown-item">' + key + '</a>';
+            }
+        });
+        htmlString += '</div>';
+        var divId = '#' + type + 'Setting';
+        $(divId + ' .dropdown').html(htmlString);
+    });
+}
 
 // Startup script
+createModalDropdowns();
 var testCell = new Gridcell('r1c1');
 testCell.rack = 1;
 testCell.s_type = 'temp';
+testCell.graphType = 'Gauge';
 var connectionInfo = {'resetString': connectionBlocks.prefix + testCell.rack + '/' + testCell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + testCell.rack + '/' + testCell.s_type + '/' + refreshSettings.amount}
-var graph = new Graph(testCell.gridcellId, testCell.rack, testCell.s_type, connectionInfo)
+// var graph = new Graph(testCell.gridcellId, testCell.rack, testCell.s_type, connectionInfo)
+var graph = new Gauge(testCell.gridcellId, testCell.rack, testCell.s_type);
 testCell.graph = graph;
 gridcells.push(testCell)
 getGrid();
 $('#' + testCell.gridcellId + 'Title').html('Rack ' + testCell.rack + ': ' + s_types.get(testCell.s_type));
 resetGraphs();
-$('#rowDropdown').html(gridDimensions.rows);
-$('#columnDropdown').html(gridDimensions.columns);
+$('#rowDropdown').html(gridDimensions.row);
+$('#columnDropdown').html(gridDimensions.column);

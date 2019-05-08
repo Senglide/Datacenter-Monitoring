@@ -37,7 +37,9 @@
       <!-- Dashboard -->
       <div id="dashboard">
         <!-- Grid -->
-        <div id="gridArea"></div>
+        <div id="gridArea">
+          <div id="gauge"></div>
+        </div>
       </div>
       <!-- Settings modal -->
       <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -53,63 +55,28 @@
               <div id="gridControls">
                 <h6>Grid size:</h6>
                 <!-- Rows -->
-                <div class="form-group row">
+                <div id="rowSetting" class="form-group row">
                   <label class="col-sm-6 col-form-label">Number of rows:</label>
-                  <div class="dropdown col-sm-6">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="rowDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      0
-                    </button>
-                    <div id="rowMenu" class="dropdown-menu" aria-labelledby="rowDropdown">
-                      <a class="dropdown-item">1</a>
-                      <a class="dropdown-item">2</a>
-                      <a class="dropdown-item">3</a>
-                    </div>
-                  </div>
+                  <div class="dropdown col-sm-6"></div>
                 </div>
                 <!-- Columns -->
-                <div class="form-group row">
+                <div id="columnSetting" class="form-group row">
                   <label class="col-sm-6 col-form-label">Number of columns:</label>
-                  <div class="dropdown col-sm-6">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="columnDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      0
-                    </button>
-                    <div id="columnMenu" class="dropdown-menu" aria-labelledby="columnDropdown">
-                      <a class="dropdown-item">1</a>
-                      <a class="dropdown-item">2</a>
-                      <a class="dropdown-item">3</a>
-                    </div>
-                  </div>
+                  <div class="dropdown col-sm-6"></div>
                 </div>
               </div>
               <!-- Dashboard controls -->
               <div id="dashboardControls">
                 <h6>Dashboard controls:</h6>
                 <!-- Refresh settings -->
-                <div class="form-group row">
+                <div id="refreshSetting" class="form-group row">
                   <label class="col-sm-6 col-form-label">Refresh time:</label>
-                  <div class="dropdown col-sm-6">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="refreshDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      5 Minutes
-                    </button>
-                    <div id="refreshMenu" class="dropdown-menu" aria-labelledby="refreshDropdown">
-                      <a class="dropdown-item">10 Seconds</a>
-                      <a class="dropdown-item">5 Minutes</a>
-                    </div>
-                  </div>
+                  <div class="dropdown col-sm-6"></div>
                 </div>
                 <!-- Scope settings -->
-                <div class="form-group row">
+                <div id="scopeSetting" class="form-group row">
                   <label class="col-sm-6 col-form-label">Graph scope:</label>
-                  <div class="dropdown col-sm-6">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="scopeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      15 Minutes
-                    </button>
-                    <div id="scopeMenu" class="dropdown-menu" aria-labelledby="scopeDropdown">
-                      <a class="dropdown-item">15 Minutes</a>
-                      <a class="dropdown-item">1 Hour</a>
-                      <a class="dropdown-item">1 Day</a>
-                    </div>
-                  </div>
+                  <div class="dropdown col-sm-6"></div>
                 </div>
               </div>
             </div>
@@ -154,6 +121,7 @@
     <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/settings.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/graph.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/general/gauge.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/index/gridcell.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/index/index.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/index/index-handlers.js' %}"></script>

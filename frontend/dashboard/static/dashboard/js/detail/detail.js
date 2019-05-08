@@ -112,14 +112,16 @@ function adjustDetailTime(isPreviousButton) {
 
 // Check if new datetime lies in scope
 function checkDetailScope() {
-    var detailDatetime = new Date(detailReading.date + 'T' + detailReading.time);
-    var lowestDatetime = new Date(allReadings[0].date + 'T' + allReadings[0].time);
-    var highestDatetime = new Date(allReadings[allReadings.length - 1].date + 'T' + allReadings[allReadings.length  - 1].time);
-    if(detailDatetime < lowestDatetime || highestDatetime <  detailDatetime) {
-        checkToGetReadings();
-    } else {
-        generateTimes();
-        adjustDetailScope();
+    if(detailsLoaded) {
+        var detailDatetime = new Date(detailReading.date + 'T' + detailReading.time);
+        var lowestDatetime = new Date(allReadings[0].date + 'T' + allReadings[0].time);
+        var highestDatetime = new Date(allReadings[allReadings.length - 1].date + 'T' + allReadings[allReadings.length  - 1].time);
+        if(detailDatetime < lowestDatetime || highestDatetime <  detailDatetime) {
+            checkToGetReadings();
+        } else {
+            generateTimes();
+            adjustDetailScope();
+        }
     }
 }
 
@@ -185,10 +187,14 @@ function generateShownReadings(readings, isNewData) {
 
 // Check for complete detailReading object
 function checkToGetReadings() {
-    if(detailReading.rack && detailReading.s_type && detailReading.date) {
+    if(detailReading.rack && detailReading.date) {
         if(!detailReading.time) {
-            detailReading.time = '12:00:00';
+            detailReading.time = defaultDetailVariables.time;
             setPickerDatetimeValues();
+        }
+        if(!detailReading.s_type) {
+            detailReading.s_type = defaultDetailVariables.s_type;
+            $('#detailTypeDropdown').html(s_types.get(detailReading.s_type));
         }
         detailReading.id = undefined;
         generateShownReadingObjects();

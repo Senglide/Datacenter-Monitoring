@@ -12,3 +12,11 @@
     margin: 10px auto 0px auto;
     text-align: center;
 }
+
+.nav-link  {
+    color: #000;
+}
+
+.gauge {
+    margin-left: 30%;
+}

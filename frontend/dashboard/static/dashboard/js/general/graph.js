@@ -274,4 +274,9 @@ class Graph {
             .attr('cx', function(d) { return classEnv.x(d.datetime); })
             .attr('cy', function(d) { return classEnv.y(d.sensor_value); });
     }
+
+    // Erase graph drawings
+    erase() {
+        d3.select(this.divId + ' svg').remove();
+    }
 }

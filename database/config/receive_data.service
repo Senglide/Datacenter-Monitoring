@@ -1,4 +1,14 @@
 [Unit]
 Description=Python script that receives data from the data center monitoring system
+Wants=network.target
+After=syslog.target network-online.target
+
 [Service]
-ExecStart=~/.virtualenvs/api/bin/python /opt/monitoring/database/code/receive_data.py
+Type=simple
+ExecStart=/home/mis/.virtualenvs/api/bin/python /opt/monitoring/database/code/receive_data.py
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
