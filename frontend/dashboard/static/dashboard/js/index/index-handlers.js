@@ -91,7 +91,13 @@ $('#gridArea').on('click', '.gridcellDropdown a' , function() {
                 } else {
                     gridcell.graph = createNewGraph(gridcell);
                 }
-                $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack + ': ' + s_types.get(gridcell.s_type));
+                // Create new title for the gridcells
+                if(gridcell.graphType == 'Gauge') {
+                    $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack);
+                } else {
+                    $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack + ': ' + s_types.get(gridcell.s_type));
+                }
+                gridcell.calculateTitleMargin();
                 resetGraphs();
             }
         }

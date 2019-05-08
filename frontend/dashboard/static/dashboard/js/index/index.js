@@ -133,7 +133,6 @@ var graph = new Gauge(testCell.gridcellId, testCell.rack, testCell.s_type);
 testCell.graph = graph;
 gridcells.push(testCell)
 getGrid();
-$('#' + testCell.gridcellId + 'Title').html('Rack ' + testCell.rack + ': ' + s_types.get(testCell.s_type));
 resetGraphs();
 $('#rowDropdown').html(gridDimensions.row);
 $('#columnDropdown').html(gridDimensions.column);

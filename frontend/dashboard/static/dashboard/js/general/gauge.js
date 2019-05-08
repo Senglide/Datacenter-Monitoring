@@ -28,9 +28,6 @@ class Gauge {
         this.majorDelta = this.range / (this.majorTicks - 1),
         this.minorDelta = this.majorDelta / this.minorTicks,
         this.pointerDelta = this.range / 13;
-
-        // console.log('#' + this.divId + 'Graph');
-        // console.log($('#r1c1Graph').width());
     }
 
     createGauge() {
@@ -174,16 +171,18 @@ class Gauge {
             i = 0;
 
         // Calculate function variables based on decreasing / increasing value and update the pointer
-        if(value < this.gaugeValue) {
-            delta = this.gaugeValue - value;
-            timeout = this.transitionDuration / delta;
-            isDecreasing = true;
-            setTimeout(transitionOneTick, timeout);
-        } else if(value > this.gaugeValue) {
-            delta = value - this.gaugeValue;
-            timeout = this.transitionDuration / delta;
-            isDecreasing = false;
-            setTimeout(transitionOneTick, timeout);
+        if(value !== this.gaugeValue) {
+            if(value < this.gaugeValue) {
+                delta = this.gaugeValue - value;
+                timeout = this.transitionDuration / delta;
+                isDecreasing = true;
+                setTimeout(transitionOneTick, timeout);
+            } else if(value > this.gaugeValue) {
+                delta = value - this.gaugeValue;
+                timeout = this.transitionDuration / delta;
+                isDecreasing = false;
+                setTimeout(transitionOneTick, timeout);
+            }    
         }
 
         // Function to update the pointer position

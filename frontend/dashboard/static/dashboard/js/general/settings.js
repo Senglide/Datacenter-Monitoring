@@ -83,9 +83,9 @@ var getAverage = false,
     ]),
     linechartSettings = new Map([
         ['temp', {'delta': 5}],
-        ['hum', {'delta': 10}],
-        ['pduPower', {'delta': 20}],
-        ['pduStatus1', {'delta': 5}],
-        ['pduStatus2', {'delta': 5}],
-        ['pduStatusT', {'delta': 10}]
+        ['hum', {'delta': 5}],
+        ['pduPower', {'delta': 15}],
+        ['pduStatus1', {'delta': 2}],
+        ['pduStatus2', {'delta': 2}],
+        ['pduStatusT', {'delta': 5}]
     ]);

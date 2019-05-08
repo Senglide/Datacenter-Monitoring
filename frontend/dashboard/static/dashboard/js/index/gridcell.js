@@ -9,8 +9,12 @@ class Gridcell {
     getHtml() {
         // Nav title
         var htmlString = '<ul class="nav nav-tabs justify-content-end"><li class="nav-item">';
-        if(this.rack && this.s_type) {
-            htmlString += '<h5 id="' + this.gridcellId + 'Title">Rack ' + this.rack + ': '  + s_types.get(this.s_type) + '</h5>';
+        if(this.graph) {
+            if(this.graphType == 'Gauge') {
+                htmlString += '<h5 id="' + this.gridcellId + 'Title">Rack ' + this.rack + '</h5>';
+            } else {
+                htmlString += '<h5 id="' + this.gridcellId + 'Title">Rack ' + this.rack + ': ' + s_types.get(this.s_type) + '</h5>';
+            }
         } else {
             htmlString += '<h5 id="' + this.gridcellId + 'Title">Please configure this graph in the settings</h5>';
         }
@@ -64,7 +68,7 @@ class Gridcell {
     }
 
     calculateTitleMargin() {
-        var margin = (($('#' + this.gridcellId + 'Graph').width() - $('#' + this.gridcellId + ' h5').width()) / 2) - (2 * ($('#' + this.gridcellId + ' li:not(:first-child)').width()));
+        var margin = (($('#' + this.gridcellId + ' ul').width() - $('#' + this.gridcellId + ' h5').width()) / 2) - (2 * ($('#' + this.gridcellId + ' li:not(:first-child)').width()));
         $('#' + this.gridcellId + ' li:first').css('margin-right', margin + 'px');
     }
 }
