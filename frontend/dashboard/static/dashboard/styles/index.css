@@ -7,16 +7,14 @@
     cursor: pointer;
 }
 
-.nav-tabs li:first-child {
-    width: 75%;
-    margin: 10px auto 0px auto;
-    text-align: center;
-}
-
 .nav-link  {
     color: #000;
 }
 
-.gauge {
-    margin-left: 30%;
+.gaugeContainer {
+    text-align: center;
+}
+
+.nav-tabs li:first-child {
+    margin-top: 10px;
 }

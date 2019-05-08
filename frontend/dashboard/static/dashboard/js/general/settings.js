@@ -80,4 +80,12 @@ var getAverage = false,
         ['pduStatus1', {'min': 0, 'max': 45}],
         ['pduStatus2', {'min': 0, 'max': 45}],
         ['pduStatusT', {'min': 0, 'max': 90}]
+    ]),
+    linechartSettings = new Map([
+        ['temp', {'delta': 5}],
+        ['hum', {'delta': 10}],
+        ['pduPower', {'delta': 20}],
+        ['pduStatus1', {'delta': 5}],
+        ['pduStatus2', {'delta': 5}],
+        ['pduStatusT', {'delta': 10}]
     ]);

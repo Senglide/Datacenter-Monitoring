@@ -35,6 +35,7 @@ class Gauge {
 
     createGauge() {
         d3.select('#' + this.divId + 'Graph svg').remove();
+        $('#' + this.divId + 'Graph').addClass('gaugeContainer');
 
         // Create the gauge body
         this.body = d3.select('#' + this.divId + 'Graph')

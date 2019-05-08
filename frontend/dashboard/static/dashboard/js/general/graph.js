@@ -91,7 +91,8 @@ class Graph {
     calculateExtremeData() {
         // Function variables
         var averageOfValues,
-            totalOfValues = 0;
+            totalOfValues = 0,
+            delta = linechartSettings.get(this.s_type).delta;
         // Calculate average value
         this.data.forEach(reading => {
             totalOfValues += reading.sensor_value;
@@ -99,7 +100,7 @@ class Graph {
         averageOfValues = totalOfValues / this.data.length;
         // Add odd values to extremeData array
         this.data.forEach(reading => {
-            if(reading.sensor_value < averageOfValues -5 || reading.sensor_value > averageOfValues + 5 || reading.id == this.detailId) {
+            if(reading.sensor_value < averageOfValues - delta || reading.sensor_value > averageOfValues + delta || reading.id == this.detailId) {
                 this.extremeData.push(reading);
             }
         });
@@ -108,6 +109,7 @@ class Graph {
     createGraph(classEnv = this) {
         // Clear the old graph
         d3.select(classEnv.divId + ' svg').remove();
+        $(this.divId + 'Graph').removeClass('gaugeContainer');
 
         // Set ranges
         this.x = d3.scaleTime().range([0, this.width]);

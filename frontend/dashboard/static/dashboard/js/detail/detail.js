@@ -1,5 +1,5 @@
 // Script variables
-var detailReading, startTime, endTime, shownReadings, indeces, backupSettings,
+var detailReading, startTime, endTime, shownReadings, indeces, backupSettings, averages,
     detailsLoaded = false,
     allReadings = [],
     detailSettings = {
@@ -60,6 +60,7 @@ function generateTable() {
     var k = 0;
     for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
         htmlString += '<tr>';
+        // Table headers row
         if(i == 0) {
             htmlString += '<td></td>';
             s_types.forEach((value, key) => {
@@ -67,6 +68,15 @@ function generateTable() {
                     htmlString += '<th>' + key + '</th>';
                 }
             });
+        // Averages row
+        } else if(i == 1) {
+            htmlString += '<td>Average</td>';
+            s_types.forEach((value, key) => {
+                if(!key.includes(' ')) {
+                    htmlString += '<td>' + Math.round(averages[key].average) + '</td>';
+                }
+            });
+        // Value rows
         } else {
             var isDetailTarget = false;
             if(shownReadings[detailReading.s_type][k].id == detailReading.id) {
@@ -127,19 +137,25 @@ function checkDetailScope() {
 
 // Adjust detail scope
 function adjustDetailScope() {
-    generateShownReadingObjects();
+    generateShownReadingObjects(false);
     detailReading.id = undefined;
     generateShownReadings(allReadings, false); 
 }
 
 // Generate empty shownReadings object
-function generateShownReadingObjects() {
+function generateShownReadingObjects(isNewData) {
     shownReadings = {};
     indeces = {};
+    if(isNewData) {
+        averages = {};
+    }
     s_types.forEach((value, key) => {
         if(!key.includes(' ')) {
             shownReadings[key] = [];
             indeces[key] = 0;
+            if(isNewData) {
+                averages[key] = {'totalSum': 0, 'totalCount': 0, 'average': 0};
+            }
         }
     });
     shownReadings['smoke'] = [];
@@ -152,14 +168,21 @@ function generateShownReadingObjects() {
 // Generate shown readings from all readings
 function generateShownReadings(readings, isNewData) {
     readings.forEach(reading => {
+        // If it is new data put every reading in the allreadings array
         if(isNewData) {
             reading.datetime = new Date(reading.date + 'T' + reading.time);
             allReadings.unshift(reading);
+            if(s_types.get(reading.sensor_type)) {
+                averages[reading.sensor_type].totalSum += reading.sensor_value;
+                averages[reading.sensor_type].totalCount ++;
+            }
         }
         var readingTime = reading.datetime.getTime();
+        // Check if the reading is the selected reading
         if(!detailReading.id && detailReading.s_type == reading.sensor_type && reading.time.substring(0, 5) == detailReading.time.substring(0, 5)) {
             detailReading.id = reading.id;
         }
+        // Check if the reading lies in the graph scope
         if(reading.sensor_type == detailReading.s_type && startTime < readingTime && readingTime < endTime) {
             if(isNewData) {
                 shownReadings.graph.unshift(reading);
@@ -167,6 +190,7 @@ function generateShownReadings(readings, isNewData) {
                 shownReadings.graph.push(reading);
             }
         }
+        // Check if the reading lies in the detail page scope
         if((startTime < readingTime && readingTime < endTime && indeces[reading.sensor_type] == 0) || reading.id == detailReading.id) {
             var typeArray = shownReadings[reading.sensor_type];
             if(isNewData) {
@@ -176,11 +200,20 @@ function generateShownReadings(readings, isNewData) {
             }
             shownReadings[reading.sensor_type] = typeArray;
         }
+        // Manage indeces so the detail page interval is applied
         indeces[reading.sensor_type] ++;
         if(indeces[reading.sensor_type] == (detailSettings.interval / 10)) {
             indeces[reading.sensor_type] = 0;
         }
     });
+    // Calculate averages for new data
+    if(isNewData) {
+        for(var averageInfo in averages) {
+            var average = averages[averageInfo];
+            average.average = average.totalSum / average.totalCount;
+        }
+    }
+    // Draw the detail page
     drawDetailGraph();
     generateTable();
 }
@@ -197,7 +230,7 @@ function checkToGetReadings() {
             $('#detailTypeDropdown').html(s_types.get(detailReading.s_type));
         }
         detailReading.id = undefined;
-        generateShownReadingObjects();
+        generateShownReadingObjects(true);
         generateTimes();
         getDetailReadings();
     }
@@ -276,7 +309,7 @@ function setPickerDatetimeValues() {
 if(sessionStorage.getItem('getDetails') == 'true') {
     detailReading = JSON.parse(sessionStorage.getItem('readingDetails'));
     setPickerDatetimeValues();
-    generateShownReadingObjects();
+    generateShownReadingObjects(true);
     generateTimes();
     getDetailReadings();
 } else {

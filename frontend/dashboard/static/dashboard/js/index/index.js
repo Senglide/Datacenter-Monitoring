@@ -48,8 +48,9 @@ function getGrid(rows = gridDimensions.row, columns = gridDimensions.column) {
         gridString += '</div>';
     }
     $('#gridArea').html(gridString);
-    $('.graphTab').attr('src', '/static/dashboard/images/chart-area.svg');
-    $('.settingsTab').attr('src', '/static/dashboard/images/cogs.svg');
+    gridcells.forEach(gridcell => {
+        gridcell.calculateTitleMargin();
+    });
 }
 
 // Define column width
