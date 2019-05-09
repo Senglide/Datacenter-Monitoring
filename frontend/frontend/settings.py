@@ -84,12 +84,12 @@ ASGI_APPLICATION = "frontend.routing.application"
 db_config = configparser.ConfigParser()
 db_config.sections()
 db_config.read('/etc/monitoring/dbConfig.ini')
-db_user = dbconfig['dbConfiguration']['username']
-db_pass = dbconfig['dbConfiguration']['password']
-db_host = dbconfig['dbConfiguration']['host']
-db_port = dbconfig['dbConfiguration']['port']
-db_auth = dbconfig['dbConfiguration']['auth']
-db_mech = dbconfig['dbConfiguration']['mech']
+db_user = db_config['dbConfiguration']['username']
+db_pass = db_config['dbConfiguration']['password']
+db_host = db_config['dbConfiguration']['host']
+db_port = db_config['dbConfiguration']['port']
+db_auth = db_config['dbConfiguration']['auth']
+db_mech = db_config['dbConfiguration']['mech']
 
 DATABASES = {
     'default': {

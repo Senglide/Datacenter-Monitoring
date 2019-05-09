@@ -8,4 +8,4 @@ web_config = configparser.ConfigParser()
 web_config['webConfiguration'] = {'secretKey': 'secretKey'}
 
 # Write files
-with open('webConfig.ini', 'w') as configfile: config.write(configfile)
+with open('webConfig.ini', 'w') as configfile: web_config.write(configfile)
