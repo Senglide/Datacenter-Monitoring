@@ -7,22 +7,22 @@ import pymongo
 from pymongo import MongoClient
 
 # Script variables
-config_location = '/etc/monitoring/dbWriterConfig.ini'
+config_location = '/etc/monitoring/dbConfig.ini'
 db_name = 'monitoring'
 
 # Get db credentials from config file
-dbconfig = configparser.ConfigParser()
-dbconfig.sections()
-dbconfig.read(config_location)
-dbuser = dbconfig['configuration']['username']
-dbpass = dbconfig['configuration']['password']
-dbhost = dbconfig['configuration']['host']
-dbport = dbconfig['configuration']['port']
-dbauth = dbconfig['configuration']['auth']
-dbmech = dbconfig['configuration']['mech']
+db_config = configparser.ConfigParser()
+db_config.sections()
+db_config.read(config_location)
+db_user = dbconfig['dbConfiguration']['username']
+db_pass = dbconfig['dbConfiguration']['password']
+db_host = dbconfig['dbConfiguration']['host']
+db_port = dbconfig['dbConfiguration']['port']
+db_auth = dbconfig['dbConfiguration']['auth']
+db_mech = dbconfig['dbConfiguration']['mech']
 
 # Connect to db
-client = MongoClient(dbhost, username=dbuser, password=dbpass, authSource=dbauth, authMechanism=dbmech)
+client = MongoClient(db_host, username=db_user, password=db_pass, authSource=db_auth, authMechanism=db_mech)
 db = client[db_name]
 
 def write_reading(reading, collection_name):

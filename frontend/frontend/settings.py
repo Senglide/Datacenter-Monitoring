@@ -20,10 +20,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'sk&1lu4$#$2jj3tc0qz6)-gl9lgftzv^bi$zu^k9xq1-2h&pky'
+web_config = configparser.ConfigParser()
+web_config.sections()
+web_config.read('/etc/monitoring/webConfig.ini')
+secret_key = web_config['webConfiguration']['secretKey']
+SECRET_KEY = secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -77,26 +81,26 @@ ASGI_APPLICATION = "frontend.routing.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 # Get DB credentials
-dbconfig = configparser.ConfigParser()
-dbconfig.sections()
-dbconfig.read('/etc/monitoring/dbWriterConfig.ini')
-dbuser = dbconfig['configuration']['username']
-dbpass = dbconfig['configuration']['password']
-dbhost = dbconfig['configuration']['host']
-dbport = dbconfig['configuration']['port']
-dbauth = dbconfig['configuration']['auth']
-dbmech = dbconfig['configuration']['mech']
+db_config = configparser.ConfigParser()
+db_config.sections()
+db_config.read('/etc/monitoring/dbConfig.ini')
+db_user = dbconfig['dbConfiguration']['username']
+db_pass = dbconfig['dbConfiguration']['password']
+db_host = dbconfig['dbConfiguration']['host']
+db_port = dbconfig['dbConfiguration']['port']
+db_auth = dbconfig['dbConfiguration']['auth']
+db_mech = dbconfig['dbConfiguration']['mech']
 
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'monitoring',
-	    'HOST': dbhost,
-	    'PORT': int(dbport),
-        'USER': dbuser,
-        'PASSWORD': dbpass,
-        'AUTH_SOURCE': dbauth,
-        'AUTH_MECHANISM': dbmech,
+	    'HOST': db_dbhost,
+	    'PORT': int(db_dbport),
+        'USER': db_user,
+        'PASSWORD': db_pass,
+        'AUTH_SOURCE': db_dbauth,
+        'AUTH_MECHANISM': db_dbmech,
         'ENFORCE_SCHEMA': False
     }
 }
