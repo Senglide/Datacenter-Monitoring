@@ -68,7 +68,7 @@ var getAverage = false,
         's_type': 'temp'
     },
     defaultDashboardVariables = {
-        'row': 1,
+        'row': 2,
         'column': 1,
         'refresh': '5 Minutes',
         'scope': '15 Minutes'
@@ -82,10 +82,17 @@ var getAverage = false,
         ['pduStatusT', {'min': 0, 'max': 90}]
     ]),
     linechartSettings = new Map([
-        ['temp', {'delta': 5}],
-        ['hum', {'delta': 5}],
-        ['pduPower', {'delta': 15}],
-        ['pduStatus1', {'delta': 2}],
-        ['pduStatus2', {'delta': 2}],
-        ['pduStatusT', {'delta': 5}]
-    ]);
+        ['temp', {'delta': 5, 'min': 15, 'max': 35}],
+        ['hum', {'delta': 5, 'min': 70, 'max': 100}],
+        ['pduPower', {'delta': 15, 'min': 210, 'max': 240}],
+        ['pduStatus1', {'delta': 2, 'min': 15, 'max': 35}],
+        ['pduStatus2', {'delta': 2, 'min': 15, 'max': 35}],
+        ['pduStatusT', {'delta': 5, 'min': 30, 'max': 70}]
+    ]),
+    colorPickerOptions = {
+        valueElement: null,
+        width: 300,
+        height: 120,
+        sliderSize: 20,
+        position: 'bottom'
+    };

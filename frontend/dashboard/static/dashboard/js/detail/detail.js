@@ -47,9 +47,12 @@ function getDetailReadings() {
 // Draw the detail graph
 function drawDetailGraph() {
     var graph = new Graph('detail', detailReading.rack, detailReading.s_type, undefined, detailReading.id);
-    graph.data = shownReadings.graph;
-    graph.extremeData = [];
+    graph.data = {};
+    graph.data['shownDetailGraph'] = {};
+    graph.data.shownDetailGraph['readings'] = shownReadings.graph;
+    graph.data.shownDetailGraph['extremeData'] = [];
     graph.calculateExtremeData();
+    graph.erase();
     graph.createGraph();
 }
 

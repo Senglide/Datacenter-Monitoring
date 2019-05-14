@@ -36,10 +36,46 @@
     <div class="myContainer">
       <!-- Dashboard -->
       <div id="dashboard">
-        <!-- Grid -->
-        <div id="gridArea">
-          <div id="gauge"></div>
+        <!-- Dashboard header -->
+        <div class="row">
+          <!-- General info -->
+          <div class="col-md-5">
+            <table id="dashboardInfoTable">
+              <tr>
+                <th>Current date</th>
+                <th>Outside temperature</th>
+              </tr>
+              <tr>
+                <td id="dashboardDate"></td>
+                <td>22°C</td>
+              </tr>
+              <tr>
+                <th>Last update</th>
+                <th>Outside humidity</th>
+              </tr>
+              <tr>
+                <td id="lastUpdateTime"></td>
+                <td>65%</td>
+              </tr>
+            </table>
+          </div>
+          <!-- Alarms -->
+          <div id="alarmContainer" class="col-md-7">
+            <table>
+              <tr>
+                <td>Motion detection active</td>
+                <td>Smoke detection active</td>
+              </tr>
+              <tr>
+                <td><img src="{% static 'dashboard/images/42.svg' %}" height="50px"></td>
+                <td><img src="{% static 'dashboard/images/21.svg' %}"></td>
+              </tr>
+            </table>
+          </div>
         </div>
+        <!-- Grid -->
+        <h4>Live statuses</h4>
+        <div id="gridArea"></div>
       </div>
       <!-- Settings modal -->
       <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -119,6 +155,7 @@
     <script type="text/javascript" src="{% static 'dashboard/lib/js/popper-1.15.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/jscolor-2.0.5.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/settings.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/graph.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/gauge.js' %}"></script>

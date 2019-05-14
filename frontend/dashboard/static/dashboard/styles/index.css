@@ -11,10 +11,20 @@
     color: #000;
 }
 
-.gaugeContainer {
+.gaugeContainer, table, h4, #alarmContainer {
     text-align: center;
 }
 
 .nav-tabs li:first-child {
     margin-top: 10px;
+}
+
+table {
+    margin-top: 15px;
+    border-collapse: separate;
+    border-spacing: 15px 0px;
+}
+
+th {
+    background-color: #999999;
 }

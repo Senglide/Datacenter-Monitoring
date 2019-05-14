@@ -95,12 +95,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'monitoring',
-	    'HOST': db_dbhost,
-	    'PORT': int(db_dbport),
+	    'HOST': db_host,
+	    'PORT': int(db_port),
         'USER': db_user,
         'PASSWORD': db_pass,
-        'AUTH_SOURCE': db_dbauth,
-        'AUTH_MECHANISM': db_dbmech,
+        'AUTH_SOURCE': db_auth,
+        'AUTH_MECHANISM': db_mech,
         'ENFORCE_SCHEMA': False
     }
 }

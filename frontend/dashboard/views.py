@@ -22,24 +22,29 @@ def detail(request):
     return render(request, 'dashboard/detail.html')
 
 # Get newest readings by rack and type
-def get_newest_readings(request, rack, s_type, amount):
-    dbRack = get_rack(rack)
-    readings = dbRack.objects.filter(sensor_type=s_type).order_by('-_id')[:amount]
-    return JsonResponse(format_readings(readings, True))
+def get_newest_readings(request, racks, s_type, amount):
+    all_readings = {}
+    rack_list = racks.split('-')
+    for rack in rack_list:
+        db_rack = get_rack(rack)
+        readings = db_rack.objects.filter(sensor_type=s_type).order_by('-_id')[:amount]
+        all_readings[rack + '-readings'] = format_readings(readings)
+
+    return JsonResponse({'all_readings': all_readings})
 
 # Get readings by rack, date and type
 def get_readings_by_date(request, rack, s_type, r_date):
     date = datetime.datetime.strptime(r_date, '%Y-%m-%d').date()
     dbRack = get_rack(rack)
     readings = dbRack.objects.filter(sensor_type=s_type).filter(date__contains=date).order_by('time').reverse()
-    return JsonResponse(format_readings(readings, True))
+    return JsonResponse({'readings': format_readings(readings)})
 
 # Get readings by rack and date
 def get_all_readings_by_date(request, rack, r_date):
     date = datetime.datetime.strptime(r_date, '%Y-%m-%d').date()
     dbRack = get_rack(rack)
     readings = dbRack.objects.filter(date__contains=date).order_by('time').reverse()
-    return JsonResponse(format_readings(readings, False))
+    return JsonResponse({'readings': format_readings(readings)})
 
 
 # Get the right model based on the requested rack
@@ -51,10 +56,8 @@ def get_rack(rack):
     }[str(rack)]
 
 # Convert db responses to json data
-def format_readings(readings, get_predictions):
+def format_readings(readings):
     data = []
-    if(get_predictions):
-        predictions = []
     for reading in readings:
         formatted_reading = {
             'id': str(reading._id),
@@ -64,13 +67,8 @@ def format_readings(readings, get_predictions):
             'time': reading.time
         }
         data.append(formatted_reading)
-        if(get_predictions):
-            predictions.append(formatted_reading)
 
-    if(get_predictions):
-        return {'readings': data, 'predictions': predictions}
-    else:
-        return {'readings': data}
+    return data
 
 # Alarm api link
 @csrf_exempt

@@ -59,15 +59,13 @@ $('#saveSettings button').click(function() {
     $('#settingsModal').modal('toggle');
 });
 
-// Graph setup handler
+// Set gridcell type and graphType handler
 $('#gridArea').on('click', '.gridcellDropdown a' , function() {
     gridcells.forEach(gridcell => {
         var originalGraphType;
-        if(gridcell.gridcellId == $(this).parent().parent().parent().parent().parent().parent().attr('id')) {
+        if(gridcell.gridcellId == $(this).parents().eq(5).attr('id')) {
             // Check which dropdown has been clicked and set value
-            if($(this).attr('class').includes('rackDropdown-item')) {
-                gridcell.rack = parseInt($(this).text());
-            } else if($(this).attr('class').includes('typeDropdown-item')) {
+            if($(this).attr('class').includes('typeDropdown-item')) {
                 gridcell.s_type = s_types.get($(this).text());
             } else {
                 originalGraphType = gridcell.graphType;
@@ -75,47 +73,45 @@ $('#gridArea').on('click', '.gridcellDropdown a' , function() {
             }
             $(this).parent().siblings('button').text($(this).text());
             // Check if all the requirements for a graph have been fulfilled
-            if(gridcell.rack && gridcell.s_type && gridcell.graphType) {
-                // If graph exists, update, else, create new
-                if(gridcell.graph) {
-                    if(gridcell.graphType == originalGraphType) {
-                        gridcell.graph.rack = gridcell.rack;
-                        gridcell.graph.s_type = gridcell.s_type;
-                        if(gridcell.graphType == 'Linechart') {
-                            gridcell.graph.updateConnectionSettings();   
-                        }
-                    } else {
-                        gridcell.graph.erase();
-                        gridcell.graph = createNewGraph(gridcell);
-                    }  
-                } else {
-                    gridcell.graph = createNewGraph(gridcell);
-                }
-                // Create new title for the gridcells
-                if(gridcell.graphType == 'Gauge') {
-                    $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack);
-                } else {
-                    $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack + ': ' + s_types.get(gridcell.s_type));
-                }
-                gridcell.calculateTitleMargin();
-                resetGraphs();
-            }
+            checkToDrawGraph(gridcell, originalGraphType);
         }
     });
 });
 
-// Create new graph for gridcell
-function createNewGraph(gridcell) {
-    switch(gridcell.graphType) {
-        case 'Linechart':
-            var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount};
-            return new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo, undefined);
-        case 'Gauge':
-            return new Gauge(gridcell.gridcellId, gridcell.rack, gridcell.s_type);
-    }
-}
-
 // Nav click handler
 $('#detailLink').click(function() {
     sessionStorage.setItem('getDetails', 'false');
+});
+
+// Set gridcell rackString handler
+$('#gridArea').on('click', '.form-check-input' , function() {
+    var inputRack = $(this).attr('id').substring($(this).attr('id').length - 1);
+    gridcells.forEach(gridcell => {
+        if(gridcell.gridcellId == $(this).parents().eq(7).attr('id')) {
+            var rackString;
+            if(gridcell.rack) {
+                rackString = gridcell.rack + '-';
+            } else {
+                rackString = '-'
+            }
+            if(rackString) {
+                if(rackString.includes(inputRack)) {
+                    rackString = rackString.replace(inputRack + '-', '');
+                } else {
+                    rackString += inputRack;
+                }
+            } else {
+                rackString = inputRack;
+            }
+            if(rackString[rackString.length - 1] == '-') {
+                rackString = rackString.substring(0, rackString.length - 1);
+            }
+            if(rackString[0] == '-') {
+                rackString = rackString.substring(1, rackString.length);
+            }
+            gridcell.rack = rackString;
+        }
+        // Check if all the requirements for a graph have been fulfilled
+        checkToDrawGraph(gridcell, gridcell.graphType);
+    });
 });

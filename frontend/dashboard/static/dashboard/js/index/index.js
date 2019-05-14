@@ -39,6 +39,7 @@ function getGrid(rows = gridDimensions.row, columns = gridDimensions.column) {
             }
             if(newGridcell == null) {
                 newGridcell = new Gridcell(gridcellId);
+                newGridcell.graphType = 'Linechart';
                 gridcells.push(newGridcell);
             }
             gridString += '<div' + ' id="' + gridcellId + '" class="columns ' + getColumnClass(columns) + '">';
@@ -50,6 +51,7 @@ function getGrid(rows = gridDimensions.row, columns = gridDimensions.column) {
     $('#gridArea').html(gridString);
     gridcells.forEach(gridcell => {
         gridcell.calculateTitleMargin();
+        gridcell.createColorPickers();
     });
 }
 
@@ -80,7 +82,7 @@ function resetGraphs() {
         if(gridcell.graph) {
             if(gridcell.graphType == 'Linechart') {
                 gridcell.graph.resize();
-                gridcell.graph.getData(undefined, true, getAverage);    
+                gridcell.graph.getData(undefined, true, getAverage);   
             } else if(gridcell.graphType == 'Gauge') {
                 gridcell.graph.getData(true);
             }
@@ -101,6 +103,7 @@ function resetTimer() {
                 }
             }
         });
+        setCurrentData();
     }, refreshSettings.time);
 }
 
@@ -121,18 +124,91 @@ function createModalDropdowns() {
     });
 }
 
+// Create new graph for gridcell
+function createNewGraph(gridcell) {
+    switch(gridcell.graphType) {
+        case 'Linechart':
+            var connectionInfo = {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount};
+            return new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, connectionInfo, undefined);
+        case 'Gauge':
+            return new Gauge(gridcell.gridcellId, gridcell.rack, gridcell.s_type);
+    }
+}
+
+// Update color of a line of a graph
+function updateGraphColor(colorPickerInfo) {
+    gridcells.forEach(gridcell => {
+        if(gridcell.gridcellId == colorPickerInfo.gridcellId && gridcell.graph) {
+            gridcell.colorPickers.forEach(colorPicker => {
+                if(colorPicker.rack == colorPickerInfo.rack) {
+                    colorPickerObject = colorPicker.picker;
+                    gridcell.graph.changeLineColor(colorPickerInfo.rack, colorPickerObject.toHEXString());
+                }
+            }); 
+        }
+    });
+}
+
+// Check to draw graph
+function checkToDrawGraph(gridcell, originalGraphType) {
+    if(gridcell.s_type && gridcell.graphType) {
+        if(gridcell.rack) {
+            // If graph exists, update, else, create new
+            if(gridcell.graph) {
+                if(gridcell.graphType == originalGraphType) {
+                    gridcell.graph.rack = gridcell.rack;
+                    gridcell.graph.s_type = gridcell.s_type;
+                    if(gridcell.graphType == 'Linechart') {
+                        gridcell.graph.updateConnectionSettings();   
+                    }
+                } else {
+                    gridcell.graph.erase();
+                    gridcell.graph = createNewGraph(gridcell);
+                }
+            } else {
+                gridcell.graph = createNewGraph(gridcell);
+            }
+            // Create new title for the gridcells
+            if(gridcell.graphType == 'Gauge') {
+                $('#' + gridcell.gridcellId + 'Title').html('Rack ' + gridcell.rack);
+            } else {
+                $('#' + gridcell.gridcellId + 'Title').html(s_types.get(gridcell.s_type));
+            }
+            gridcell.calculateTitleMargin();
+            resetGraphs();
+        } else {
+            if(gridcell.graph) {
+                gridcell.graph.erase();
+                $('#' + gridcell.gridcellId + 'Title').html('Please configure this graph in the settings');
+                gridcell.calculateTitleMargin();
+            }
+        }
+    }
+}
+
+// Set current data
+function setCurrentData() {
+    var now = new Date();
+    $('#dashboardDate').html(('0' + now.getDate()).slice(-2) + '/' + ('0' + (now.getMonth() + 1)).slice(-2) + '/' + now.getFullYear());
+    $('#lastUpdateTime').html(('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) + ':' + ('0' + now.getSeconds()).slice(-2));
+}
+
 // Startup script
-createModalDropdowns();
-var testCell = new Gridcell('r1c1');
-testCell.rack = 1;
-testCell.s_type = 'temp';
-testCell.graphType = 'Gauge';
-var connectionInfo = {'resetString': connectionBlocks.prefix + testCell.rack + '/' + testCell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + testCell.rack + '/' + testCell.s_type + '/' + refreshSettings.amount}
-// var graph = new Graph(testCell.gridcellId, testCell.rack, testCell.s_type, connectionInfo)
-var graph = new Gauge(testCell.gridcellId, testCell.rack, testCell.s_type);
-testCell.graph = graph;
-gridcells.push(testCell)
-getGrid();
-resetGraphs();
+var cell1 = new Gridcell('r1c1'),
+    cell2 = new Gridcell('r2c1');
+cell1.rack = '1-2-3';
+cell2.rack = '1-2-3';
+cell1.s_type = 'temp';
+cell2.s_type = 'pduPower';
+cell1.graphType = 'Linechart';
+cell2.graphType = 'Linechart';
+cell1.graph = new Graph(cell1.gridcellId, cell1.rack, cell1.s_type, {'resetString': connectionBlocks.prefix + cell1.rack + '/' + cell1.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + cell1.rack + '/' + cell1.s_type + '/' + refreshSettings.amount});
+cell2.graph = new Graph(cell2.gridcellId, cell2.rack, cell2.s_type, {'resetString': connectionBlocks.prefix + cell2.rack + '/' + cell2.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + cell2.rack + '/' + cell2.s_type + '/' + refreshSettings.amount});
+gridcells.push(cell1);
+gridcells.push(cell2);
 $('#rowDropdown').html(gridDimensions.row);
 $('#columnDropdown').html(gridDimensions.column);
+getGrid();
+resetGraphs();
+createModalDropdowns();
+setCurrentData();
