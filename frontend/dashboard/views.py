@@ -33,11 +33,16 @@ def get_newest_readings(request, racks, s_type, amount):
     return JsonResponse({'all_readings': all_readings})
 
 # Get readings by rack, date and type
-def get_readings_by_date(request, rack, s_type, r_date):
+def get_readings_by_date(request, racks, s_type, r_date):
     date = datetime.datetime.strptime(r_date, '%Y-%m-%d').date()
-    dbRack = get_rack(rack)
-    readings = dbRack.objects.filter(sensor_type=s_type).filter(date__contains=date).order_by('time').reverse()
-    return JsonResponse({'readings': format_readings(readings)})
+    all_readings = {}
+    rack_list = racks.split('-')
+    for rack in rack_list:
+        db_rack = get_rack(rack)
+        readings = db_rack.objects.filter(sensor_type=s_type).filter(date__contains=date).order_by('time').reverse()
+        all_readings[rack + '-readings'] = format_readings(readings)
+
+    return JsonResponse({'all_readings': all_readings})
 
 # Get readings by rack and date
 def get_all_readings_by_date(request, rack, r_date):
@@ -72,8 +77,8 @@ def format_readings(readings):
 
 # Alarm api link
 @csrf_exempt
-def alarm(request, alarm):
-    send_event('alarmChannel', 'message', {'alarm': alarm})
+def alarm(request, a_type, alarm):
+    send_event('alarmChannel', 'message', {'a_type': a_type, 'alarm': alarm})
     return JsonResponse({})
 
 # Data prediction test

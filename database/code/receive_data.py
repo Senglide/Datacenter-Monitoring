@@ -11,7 +11,9 @@ from db_writer import write_reading
 
 # Script variables
 subscribe_channel = 'datacenter'
-cert_location = '/etc/mosquitto/ca_certificates/ca.crt'
+cert_location = '/etc/mosquitto/ca_certificates/client-API.crt'
+csr_location = '/etc/mosquitto/ca_certificates/client-API.csr'
+key_location = '/etc/mosquitto/ca_certificates/client-API.key'
 client_ip = '10.140.10.21'
 client_port = 8883
 app_name = 'dashboard'
@@ -62,7 +64,7 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 # Encryption settings
-client.tls_set(cert_location)
+client.tls_set(cert_location, csr_location, key_location)
 
 # Connect to client
 client.connect(client_ip, client_port)

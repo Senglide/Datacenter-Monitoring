@@ -3,35 +3,25 @@ class Graph {
     constructor(divId, rack, s_type, connectionSettings, detailId) {
         // Graph global variables
         this.x, this.y, this.xAxis, this.yAxis, this.area, this.dots, this.chart, this.data, this.extremeData, this.clip, this.scatter, this.zoom,
-        this.divId = '#' + divId,
+        this.divId = divId,
         this.rack = rack,
         this.s_type = s_type,
         this.connectionSettings = connectionSettings,
         this.detailId = detailId,
         this.lines = [],
-        this.margin = {top: 10, right: 30, bottom: 30, left: this.getLeftMargin().margin},
-        this.width = $(this.divId).width() - this.margin.left - this.margin.right,
+        this.margin = {top: 10, right: 10, bottom: 20, left: 20},
+        this.width = $('#' + this.divId + 'Graph').width() - this.margin.left - this.margin.right,
         this.height = 200 - this.margin.top - this.margin.bottom;
-    }
-
-    // Decide on left margin
-    getLeftMargin() {
-        if(this.detailId) {
-            return {'margin': 50, 'label': 0};
-        } else {
-            return {'margin': 150, 'label': 100};
-        }
     }
 
     // Update connectionSettings
     updateConnectionSettings() {
-        this.connectionSettings = {'resetString': 'get_newest_readings/' + this.rack + '/' + this.s_type + '/90', 'refreshString': 'get_newest_readings/' + this.rack + '/' + this.s_type + '/30'};
+        this.connectionSettings = {'resetString': connectionBlocks.prefix + this.rack + '/' + this.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + this.rack + '/' + this.s_type + '/' + refreshSettings.amount};
     }
 
-    // Resize graph
+    // Resize
     resize() {
-        this.width = $(this.divId).width() - this.margin.left - this.margin.right,
-        this.height = 200 - this.margin.top - this.margin.bottom;
+        this.width = $('#' + this.divId + 'Graph').width() - this.margin.left - this.margin.right;
     }
 
     // Get data for graph
@@ -39,6 +29,7 @@ class Graph {
         // Function variables
         var newData = {};
         // Get new data
+        this.calculateMargins();
         $.ajax({
             type: 'GET',
             url: this.prepareForData(resetGraph),
@@ -73,6 +64,7 @@ class Graph {
                 });
                 // Finish composing data and call next function
                 if(resetGraph) {
+                    $('#' + classEnv.divId + ' .preloader').prop('hidden', true);
                     classEnv.erase();
                     classEnv.createGraph();
                 } else {
@@ -84,7 +76,8 @@ class Graph {
 
     // Prepare arrays and decide which connectionstring to use
     prepareForData(resetGraph) {
-        if(resetGraph) { 
+        if(resetGraph) {
+            $('#' + this.divId + ' .preloader').prop('hidden', false);
             this.data = {};
             return this.connectionSettings.resetString;
         } else { 
@@ -117,10 +110,8 @@ class Graph {
     }
 
     createGraph(classEnv = this) {
-        // $(this.divId + 'Graph').removeClass('gaugeContainer');
-
         // Add svg to canvas
-        this.chart = d3.select(this.divId + 'Graph')
+        this.chart = d3.select('#' + this.divId + 'Graph')
             .append('svg')
             .attr('width', this.width + this.margin.left + this.margin.right)
             .attr('height', this.height + this.margin.top + this.margin.bottom)
@@ -132,17 +123,18 @@ class Graph {
         
         // Clip path
         this.clip = this.chart.append('defs').append('SVG:clipPath')
-            .attr('id', 'clip')
+            .attr('id', this.divId + 'GraphClip')
             .append('SVG:rect')
+            .attr('id', this.divId + 'GraphClipRect')
             .attr('width', this.width)
             .attr('height', this.height)
             .attr('x', 0)
-            .attr('y', 0)
+            .attr('y', 0);
 
         // Scatter
         this.scatter = this.chart.append('g')
-            .attr('clip-path', 'url(#clip)')
-            .attr('id', this.divId + 'Scatter');
+            .attr('clip-path', 'url(#' + this.divId + 'GraphClip)')
+            .attr('id', this.divId + 'GraphScatter');
 
         // Zoom
         this.zoom = d3.zoom()
@@ -183,6 +175,7 @@ class Graph {
                     line = lineInfo;
                 }
             });
+
             // Create new line if none exists for this rack
             if(!line) {
                 var lineColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
@@ -206,25 +199,9 @@ class Graph {
                 .attr('stroke-width', 4)
                 .attr('d', line.line(this.data[key].readings));
 
-            // Create legend for line
-            if(!this.detailId) {
-                this.chart.append('rect')
-                    .attr('id', 'legendRack' + rack)
-                    .attr('x', -150)
-                    .attr('y', 40 + (index * 25))
-                    .attr('width', 20)
-                    .attr('height', 20)
-                    .style('fill', line.color);
-                this.chart.append('text')
-                    .attr('id', 'legendRackText' + rack)
-                    .attr('x', -120)
-                    .attr('y', 55 + (index * 25))
-                    .text('Rack ' + line.rack);
-            }
-
             // Append dots to chart
             var dot = this.scatter.append('g')
-                .selectAll(this.divId + ' .dot' + index)
+                .selectAll('#' + this.divId + 'Graph .dot' + index)
                 .data(this.data[key].extremeData)
                 .enter()
                 .append('circle')
@@ -265,42 +242,26 @@ class Graph {
 
             // Store dot
             this.dots.push(dot);
-
-            // Show color picker for this rack, set correct color
-            $(this.divId + ' #colorButton' + rack).css('background-color', line.color);
-            $(this.divId + ' #colorButton' + rack).prop('disabled', false);
-            // Make sure the checkbox is ticked
-            $(this.divId + ' #rackCheck' + rack).prop('checked', true);
         });
 
-        // Label for the x axis
-        this.chart.append('text')             
-            .attr('transform', 'translate(' + (this.width/2) + ',' + (this.height + this.margin.top + 20) + ')')
-            .style('text-anchor', 'middle')
-            .text('Time');
-
-        // Label for the y axis
-        this.chart.append('text')
-            .attr('transform', 'rotate(-90)')
-            .attr('y', 0 - this.margin.left + this.getLeftMargin().label)
-            .attr('x', 0 - (this.height / 2))
-            .attr('dy', '1em')
-            .style('text-anchor', 'middle')
-            .text(s_types.get(this.s_type));
-
         // Add zoom to the chart
-        d3.select(this.divId + ' svg').call(this.zoom);
+        d3.select('#' + this.divId + 'Graph svg').call(this.zoom);
+
+        this.checkCheckBoxesAndColorPickers();
     }
 
     // Zoom
     updateZoomChart(classEnv) {
-        // recover the new scale
+        // Show reset button
+        $('#' + classEnv.divId + ' .graphResetButton').prop('hidden', false);
+
+        // Recover the new scale
         var newX = d3.event.transform.rescaleX(classEnv.x);
         var newY = d3.event.transform.rescaleY(classEnv.y);
 
-        // update axes with these new boundaries
-        classEnv.chart.select(this.divId + ' .xAxis').call(d3.axisBottom(newX));
-        classEnv.chart.select(this.divId + ' .yAxis').call(d3.axisLeft(newY));
+        // Update axes with these new boundaries
+        classEnv.chart.select('#' + this.divId + 'Graph .xAxis').call(d3.axisBottom(newX));
+        classEnv.chart.select('#' + this.divId + 'Graph .yAxis').call(d3.axisLeft(newY));
 
         // Update lines and dots
         classEnv.updateLinesAndDots(newX, newY);
@@ -330,8 +291,8 @@ class Graph {
         this.yAxis = d3.axisLeft(this.y).tickSizeOuter(0);
 
         // Remove old axes
-        d3.select(this.divId + ' .xAxis').remove();
-        d3.select(this.divId + ' .yAxis').remove();
+        d3.select('#' + this.divId + 'Graph .xAxis').remove();
+        d3.select('#' + this.divId + 'Graph .yAxis').remove();
 
         // Add new X and Y axes to svg
         this.chart.append('g')
@@ -351,7 +312,7 @@ class Graph {
             var drawnLine = line.line
                 .x(function(d) { return x(d.datetime); })
                 .y(function(d) { return y(d.sensor_value); });
-            this.chart.select(this.divId + ' .line' + index)
+            this.chart.select('#' + this.divId + 'Graph .line' + index)
                 .attr('stroke', line.color)
                 .attr('d', drawnLine(this.data[key].readings));
             this.lines[index] = {'rack': line.rack, 'line': drawnLine, 'color': line.color};
@@ -381,8 +342,7 @@ class Graph {
 
     // Erase graph drawings
     erase() {
-        d3.select(this.divId + ' svg').remove();
-        this.checkColorPickers();
+        d3.select('#' + this.divId + 'Graph svg').remove();
     }
 
     // Change the color of a line
@@ -395,12 +355,27 @@ class Graph {
         });
     }
 
-    // Disable colorPickers
-    checkColorPickers() {
+    // Check checkboxes and colorPickers
+    checkCheckBoxesAndColorPickers() {
         racks.forEach(rack => {
-            if(!$(this.divId + ' #rackCheck' + rack).prop('checked')) {
-                $(this.divId + ' #colorButton' + rack).prop('disabled', true);
-            }
+            if(this.rack.includes(rack)) {
+                $('#' + this.divId + 'GraphRackCheck' + rack).prop('checked', true);
+                $('#' + this.divId + 'GraphColorButton' + rack).prop('disabled', false);
+                this.lines.forEach(line => {
+                    if(line.rack == rack) {
+                        $('#' + this.divId + 'GraphColorButton' + rack).css('background-color', line.color);
+                    }
+                });
+            } else {
+                $('#' + this.divId + 'GraphRackCheck' + rack).prop('checked', false);
+                $('#' + this.divId + 'GraphColorButton' + rack).prop('disabled', true);
+            }     
         });
+    }
+
+    // Calculate margins
+    calculateMargins() {
+        var loaderMargin = ($('#' + this.divId + ' .gridcellGraphColumn').width() - $('#' + this.divId + 'Graph .preloader').width()) / 2;
+        $('#' + this.divId + 'Graph .preloader').css('margin-left', loaderMargin);
     }
 }

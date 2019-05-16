@@ -3,10 +3,6 @@ $('#rowMenu a').click(function() {
     gridDimensions.row = parseInt($(this).text());
     $('#rowDropdown').html(gridDimensions.row);
 });
-$('#columnMenu a').click(function() {
-    gridDimensions.column = parseInt($(this).text());
-    $('#columnDropdown').html(gridDimensions.column);
-});
 
 // Refresh toggle click handler
 $('#refreshMenu a').click(function() {
@@ -35,12 +31,11 @@ $('#saveSettings button').click(function() {
         refreshSettings = backupSettings.controls.refresh;
         connectionBlocks = backupSettings.controls.connect;
         $('#rowDropdown').html(backupSettings.grid.rowString);
-        $('#columnDropdown').html(backupSettings.grid.columnString);
         $('#refreshDropdown').html(backupSettings.controls.refreshString);
         $('#scopeDropdown').html(backupSettings.controls.scopeString);
     } else {
         for(var i = 0; i < gridcells.length; i++) { 
-            if(parseInt(gridcells[i].gridcellId.substring(1, 2)) > gridDimensions.rows || parseInt(gridcells[i].gridcellId.substring(3)) > gridDimensions.columns) {
+            if(parseInt(gridcells[i].gridcellId.substring(1, 2)) > gridDimensions.rows) {
                 gridcells.splice(i, 1);
             }
         }
@@ -54,7 +49,7 @@ $('#saveSettings button').click(function() {
             });
         }
         setBackupSettings();
-        resetGraphs();
+        resetGraphs(gridcells);
     }
     $('#settingsModal').modal('toggle');
 });
@@ -62,18 +57,13 @@ $('#saveSettings button').click(function() {
 // Set gridcell type and graphType handler
 $('#gridArea').on('click', '.gridcellDropdown a' , function() {
     gridcells.forEach(gridcell => {
-        var originalGraphType;
-        if(gridcell.gridcellId == $(this).parents().eq(5).attr('id')) {
-            // Check which dropdown has been clicked and set value
-            if($(this).attr('class').includes('typeDropdown-item')) {
-                gridcell.s_type = s_types.get($(this).text());
-            } else {
-                originalGraphType = gridcell.graphType;
-                gridcell.graphType = $(this).text();
-            }
+        if(gridcell.gridcellId == $(this).parents().eq(4).attr('id')) {
+            // Set gridcell sensor type
+            gridcell.s_type = s_types.get($(this).text());
             $(this).parent().siblings('button').text($(this).text());
+            gridcell.calculateMargins();
             // Check if all the requirements for a graph have been fulfilled
-            checkToDrawGraph(gridcell, originalGraphType);
+            checkToDrawGraph(gridcell);
         }
     });
 });
@@ -87,7 +77,7 @@ $('#detailLink').click(function() {
 $('#gridArea').on('click', '.form-check-input' , function() {
     var inputRack = $(this).attr('id').substring($(this).attr('id').length - 1);
     gridcells.forEach(gridcell => {
-        if(gridcell.gridcellId == $(this).parents().eq(7).attr('id')) {
+        if(gridcell.gridcellId == $(this).parents().eq(6).attr('id')) {
             var rackString;
             if(gridcell.rack) {
                 rackString = gridcell.rack + '-';
@@ -110,8 +100,18 @@ $('#gridArea').on('click', '.form-check-input' , function() {
                 rackString = rackString.substring(1, rackString.length);
             }
             gridcell.rack = rackString;
+            // Check if all the requirements for a graph have been fulfilled
+            checkToDrawGraph(gridcell);
         }
-        // Check if all the requirements for a graph have been fulfilled
-        checkToDrawGraph(gridcell, gridcell.graphType);
+    });
+});
+
+// Reset graph after zoom handler
+$('#gridArea').on('click', '.graphResetButton i' , function() {
+    gridcells.forEach(gridcell => {
+        if(gridcell.gridcellId == $(this).parents().eq(4).attr('id')) {
+            gridcell.graph.updateGraph();
+            $('#' + gridcell.gridcellId + ' .graphResetButton').prop('hidden', true);
+        }
     });
 });

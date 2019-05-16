@@ -3,28 +3,82 @@
     margin: 0% auto 0% auto;
 }
 
-.dropdown-item, nav a:first-child {
-    cursor: pointer;
+nav {
+    background-color: #1a237e;
+    color: #e8eaf6;
 }
 
-.nav-link  {
-    color: #000;
+.dashboardRow {
+    margin-top: 15px;
+    border: 2px solid #3949ab;
 }
 
-.gaugeContainer, table, h4, #alarmContainer {
-    text-align: center;
+.dashboardFirstColumn {
+    background-color: #3949ab;
+    color: #e8eaf6;
+    text-align: center
 }
 
-.nav-tabs li:first-child {
+.dashboardFirstColumn h3 {
+    position: absolute;
+    transform:  translateX(-50%) translateY(-50%) rotate(-90deg);
+    top: 50%;
+    left: 50%;
+}
+
+.dashboardFirstColumn div {
     margin-top: 10px;
 }
 
-table {
-    margin-top: 15px;
-    border-collapse: separate;
-    border-spacing: 15px 0px;
+.dropdown-item, .dashboardFirstColumn i{
+    cursor: pointer;
 }
 
-th {
-    background-color: #999999;
+.columns {
+    height: 250px;
+    border: 2px solid #7986cb;
+    margin: 5px;
+}
+
+.graphTypeDropdownToggle {
+    border: none;
+    font-weight: bold;
+}
+
+.legendCol {
+    padding: 0px;
+}
+
+.legendRow {
+    padding-left: 25%;
+}
+
+.graphLegend {
+    padding-top: 5%;
+}
+
+.gridcellGraphColumn div, .preloader {
+    position: absolute;
+    bottom: 0;
+}
+
+.graphResetButton {
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.gridcellTitleRow .col-sm-2 {
+    padding: 0;
+}
+
+#alarmContainer {
+    border-right: 2px solid #7986cb;
+    border-left: 2px solid #7986cb;
+}
+
+table {
+    text-align: center;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 15px 0px;
 }

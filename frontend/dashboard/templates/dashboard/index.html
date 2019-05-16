@@ -10,25 +10,15 @@
   <!-- Body -->
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar">
       <a class="navbar-brand">
         <img src="{% static 'dashboard/images/ju_logo.jpg' %}" width="35" height="35" class="d-inline-block align-top" alt="Jimma University Logo">
         Jimma University
       </a>
       <div>
         <div style="float:left">
-          <a class="navbar-brand" href="#">Data Center Dashboard</a>
-        </div>
-        <!-- Nav right dropdown -->
-        <div class="dropdown" style="float:right">
-          <button class="navbar-toggler" type="button" id="navMenuDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navMenuDropdown">
-            <a class="dropdown-item">Dashboard</a>
-            <a id="detailLink" class="dropdown-item" href="/dashboard/detail">Detail lookup</a>
-            <a id="settingsTrigger" class="dropdown-item" data-toggle="modal" data-target="#settingsModal" data-backdrop="static" data-keyboard="false">Dashboard Settings</a>
-          </div>
+          <a class="navbar-brand">Data Center Dashboard</a>
+          <a id="detailLink" href="/dashboard/detail"><i class="fas fa-search fa-lg"></i></a>
         </div>
       </div>
     </nav>
@@ -37,10 +27,13 @@
       <!-- Dashboard -->
       <div id="dashboard">
         <!-- Dashboard header -->
-        <div class="row">
+        <div class="row dashboardRow">
           <!-- General info -->
-          <div class="col-md-5">
-            <table id="dashboardInfoTable">
+          <div class="col-sm-1 dashboardFirstColumn">
+            <h3>Status</h3>
+          </div>
+          <div class="statusCol col-sm-4">
+            <table>
               <tr>
                 <th>Current date</th>
                 <th>Outside temperature</th>
@@ -60,22 +53,38 @@
             </table>
           </div>
           <!-- Alarms -->
-          <div id="alarmContainer" class="col-md-7">
+          <div id="alarmContainer" class="statusCol col-sm">
             <table>
               <tr>
-                <td>Motion detection active</td>
-                <td>Smoke detection active</td>
+                <td id="movementText" class="movementAlarm">Motion detection active</td>
+                <td id="smokeText" class="smokeAlarm">Smoke detection active</td>
               </tr>
               <tr>
-                <td><img src="{% static 'dashboard/images/42.svg' %}" height="50px"></td>
-                <td><img src="{% static 'dashboard/images/21.svg' %}"></td>
+                <td id="movementImage" class="movementAlarm"><img src="{% static 'dashboard/images/movement_preloader.svg' %}" height="50px"></td>
+                <td id="smokeImage" class="smokeAlarm"><img src="{% static 'dashboard/images/smoke_preloader.svg' %}"></td>
+              </tr>
+            </table>
+          </div>
+          <!-- Status indicator -->
+          <div class="statusCol col-sm-2">
+            <table>
+              <tr>
+                <td>Dashboard online</td>
+              </tr>
+              <tr>
+                <td><img src="{% static 'dashboard/images/green_circle.jpg' %}" height="50px"></td>
               </tr>
             </table>
           </div>
         </div>
         <!-- Grid -->
-        <h4>Live statuses</h4>
-        <div id="gridArea"></div>
+        <div class="row dashboardRow">
+          <div class="col-sm-1 dashboardFirstColumn">
+            <div><i id="settingsTrigger" class="fas fa-cogs fa-lg" data-toggle="modal" data-target="#settingsModal" data-backdrop="static" data-keyboard="false"></i></div>
+            <h3>Dashboard</h3>
+          </div>
+          <div id="gridArea" class="col-md-11"></div>
+        </div>
       </div>
       <!-- Settings modal -->
       <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -93,11 +102,6 @@
                 <!-- Rows -->
                 <div id="rowSetting" class="form-group row">
                   <label class="col-sm-6 col-form-label">Number of rows:</label>
-                  <div class="dropdown col-sm-6"></div>
-                </div>
-                <!-- Columns -->
-                <div id="columnSetting" class="form-group row">
-                  <label class="col-sm-6 col-form-label">Number of columns:</label>
                   <div class="dropdown col-sm-6"></div>
                 </div>
               </div>
@@ -151,6 +155,8 @@
       </div>
     </div>
     <!-- Scripts -->
+    <script type="text/javascript" src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/jquery-3.3.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/popper-1.15.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}"></script>

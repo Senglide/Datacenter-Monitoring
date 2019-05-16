@@ -49,7 +49,6 @@ var getAverage = false,
     ]),
     dashboardSettingsOptions = new Map([
         ['row', [1, 2, 3]],
-        ['column', [1, 2, 3]],
         ['refresh', new Map([
             ['10 Seconds', {'time': 10, 'amount': 1}],
             ['5 Minutes', {'time': 300, 'amount': 30}],
@@ -69,7 +68,6 @@ var getAverage = false,
     },
     defaultDashboardVariables = {
         'row': 2,
-        'column': 1,
         'refresh': '5 Minutes',
         'scope': '15 Minutes'
     },
