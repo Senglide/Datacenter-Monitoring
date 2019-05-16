@@ -178,7 +178,12 @@ class Graph {
 
             // Create new line if none exists for this rack
             if(!line) {
-                var lineColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+                var lineColor;
+                if(this.detailId) {
+                    lineColor = '#69b3a2';
+                } else {
+                    lineColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+                }
                 line = {'rack': rack,
                         'line': d3.line()
                             .curve(d3.curveMonotoneX)

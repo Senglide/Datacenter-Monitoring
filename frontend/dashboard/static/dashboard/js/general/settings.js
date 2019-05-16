@@ -1,6 +1,6 @@
 var getAverage = false,
     today = new Date(),
-    racks = [1, 2, 3],
+    racks = [1, 4, 6],
     s_types = new Map([
         ['temp', 'Temperature (°C)'],
         ['Temperature (°C)', 'temp'],

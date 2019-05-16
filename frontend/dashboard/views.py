@@ -6,7 +6,7 @@ import datetime
 
 from django.views.decorators.csrf import csrf_exempt
 from django_eventstream import send_event
-from .models import Rack_1, Rack_2, Rack_3
+from .models import Rack_1, Rack_2, Rack_3, Rack_4, Rack_5, Rack_6, Rack_7, Rack_8, Rack_9, Rack_10
 
 # Data prediction test
 import pandas as pd
@@ -57,7 +57,14 @@ def get_rack(rack):
     return {
         '1': Rack_1,
         '2': Rack_2,
-        '3': Rack_3
+        '3': Rack_3,
+        '4': Rack_4,
+        '5': Rack_5,
+        '6': Rack_6,
+        '7': Rack_7,
+        '8': Rack_8,
+        '9': Rack_9,
+        '10': Rack_10
     }[str(rack)]
 
 # Convert db responses to json data

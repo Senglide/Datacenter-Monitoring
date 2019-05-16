@@ -11,12 +11,14 @@ from db_writer import write_reading
 
 # Script variables
 subscribe_channel = 'datacenter'
-cert_location = '/etc/mosquitto/ca_certificates/client-API.crt'
-csr_location = '/etc/mosquitto/ca_certificates/client-API.csr'
-key_location = '/etc/mosquitto/ca_certificates/client-API.key'
-client_ip = '10.140.10.21'
+cert_location = '/etc/monitoring/ca_certificates/ca.crt'
+client_cert_location = '/etc/monitoring/ca_certificates/client-API.crt'
+key_location = '/etc/monitoring/ca_certificates/client-API.key'
+client_ip = '10.140.4.160'
 client_port = 8883
 app_name = 'dashboard'
+smoke_detected = False
+movement_detected = False
 
 # The callback for when the client receives a CONNACK response from the server
 def on_connect(client, userdata, flags, rc):
@@ -48,6 +50,21 @@ def process_reading(reading):
         reading['time']
     )
 
+    # Check for alarms
+    if (new_reading.sensor_type == 'smoke') or (new_reading.sensor_type == 'movement'):
+        if new_reading.sensor_type == 'smoke':
+            if new_reading.sensor_value != smoke_detected:
+                session = requests.Session()
+                session.trust_env = False
+                r = session.post('http://localhost:8000/dashboard/alarm/' + new_reading.sensor_type + '/' + str(new_reading.sensor_value))
+                smoke_detected = new_reading.sensor_value
+        else:
+            if new_reading.sensor_value != movement_detected:
+                session = requests.Session()
+                session.trust_env = False
+                r = session.post('http://localhost:8000/dashboard/alarm/' + new_reading.sensor_type + '/' + str(new_reading.sensor_value))
+                movement_detected = new_reading.sensor_value
+
     # Format reading for the db
     new_writeable_reading = new_reading.make_writeable()
     # Determin the correct collection for the reading
@@ -64,7 +81,7 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 # Encryption settings
-client.tls_set(cert_location, csr_location, key_location)
+client.tls_set(cert_location, client_cert_location, key_location)
 
 # Connect to client
 client.connect(client_ip, client_port)

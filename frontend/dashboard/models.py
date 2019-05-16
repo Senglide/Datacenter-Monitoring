@@ -27,6 +27,34 @@ class Rack_2(Abstract_Reading_Collection):
 class Rack_3(Abstract_Reading_Collection):
     pass
 
+# Model for the Rack 4 collection
+class Rack_4(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 5 collection
+class Rack_5(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 6 collection
+class Rack_6(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 7 collection
+class Rack_7(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 8 collection
+class Rack_8(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 9 collection
+class Rack_9(Abstract_Reading_Collection):
+    pass
+
+# Model for the Rack 10 collection
+class Rack_10(Abstract_Reading_Collection):
+    pass
+
 # Model for the Movement collection
 class Movement(Abstract_Reading_Collection):
     pass

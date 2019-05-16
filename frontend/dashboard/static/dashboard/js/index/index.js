@@ -170,6 +170,7 @@ function setCurrentDateAndTime() {
 alarmSocket = new ReconnectingEventSource('/alarmSignal/');
 alarmSocket.addEventListener('message', function(e) {
     var incoming = JSON.parse(e.data);
+    console.log(incoming);
     switch(incoming.alarm) {
         case 0:
             $('#' + incoming.a_type + 'Text').html(incoming.a_type.charAt(0).toUpperCase() + incoming.a_type.slice(1) + ' detection active');
@@ -193,11 +194,13 @@ alarmSocket.addEventListener('message', function(e) {
 }, false);
 
 // Resize graphs on window width change
-$('body').resize(function () {
-    console.log('resize');
+$(window).resize(function () {
     gridcells.forEach(gridcell => {
         if(gridcell.graph) {
+            gridcell.graph.erase();
             gridcell.graph.resize();
+            gridcell.graph.createGraph();
+            gridcell.calculateMargins();
         }
     });
 });
@@ -206,8 +209,8 @@ $('body').resize(function () {
 // Startup script
 var cell1 = new Gridcell('r1'),
     cell2 = new Gridcell('r2');
-cell1.rack = '1-2-3';
-cell2.rack = '1-2-3';
+cell1.rack = '1';
+cell2.rack = '1';
 cell1.s_type = 'temp';
 cell2.s_type = 'pduPower';
 cell1.graphType = 'Linechart';
