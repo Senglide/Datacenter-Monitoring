@@ -9,7 +9,7 @@ class Graph {
         this.connectionSettings = connectionSettings,
         this.detailId = detailId,
         this.lines = [],
-        this.margin = {top: 10, right: 10, bottom: 20, left: 20},
+        this.margin = {top: 10, right: 10, bottom: 20, left: 30},
         this.width = $('#' + this.divId + 'Graph').width() - this.margin.left - this.margin.right,
         this.height = 200 - this.margin.top - this.margin.bottom;
     }
@@ -30,6 +30,9 @@ class Graph {
         var newData = {};
         // Get new data
         this.calculateMargins();
+        // Reset min and max values
+        this.minValue = undefined;
+        this.maxValue = undefined;
         $.ajax({
             type: 'GET',
             url: this.prepareForData(resetGraph),
@@ -295,13 +298,14 @@ class Graph {
 
     // Draw axes
     updateAndDrawAxes() {
+        console.log('drawaxes');
         // Set axes ranges and domains
         this.x = d3.scaleTime()
             .range([0, this.width])
             .domain(d3.extent(this.data[Object.keys(this.data)[0]].readings, function(d) { return d.datetime; }));
         this.y = d3.scaleLinear()
             .range([this.height, 0])
-            .domain([this.minValue - linechartSettings.get(this.s_type).delta, this.maxValue + linechartSettings.get(this.s_type).delta]);
+            .domain([parseInt(this.minValue) - linechartSettings.get(this.s_type).delta, parseInt(this.maxValue) + linechartSettings.get(this.s_type).delta]);
 
         // Define axes
         this.xAxis = d3.axisBottom(this.x).ticks(15).tickSizeOuter(0);

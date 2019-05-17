@@ -1,5 +1,8 @@
 # Model class for a sensor reading
 
+# Imports
+import datetime
+
 # Class Reading
 class Reading(object):
 
@@ -20,7 +23,7 @@ class Reading(object):
             "sensor": self.sensor,
             "sensor_type": self.sensor_type,
             "sensor_value": self.sensor_value,
-            "date": self.date,
-            "time": self.time
+            "date": str(self.date),
+            "time": str(self.time)
         }
         return reading
