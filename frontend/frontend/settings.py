@@ -147,3 +147,7 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_URL = '/static/'
+
+# Alarm values
+SMOKE_ALARM = 0
+MOVEMENT_ALARM = 0

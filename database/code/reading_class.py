@@ -4,13 +4,14 @@
 class Reading(object):
 
     # Constructor with rack, sensor, sensor_type and value
-    def __init__(self, rack, sensor, sensor_type, sensor_value, date, time):
+    def __init__(self, rack, sensor, sensor_type, sensor_value):
+        currentDateTime = datetime.datetime.now()
         self.rack = rack
         self.sensor = sensor
         self.sensor_type = sensor_type
         self.sensor_value = sensor_value
-        self.date = date
-        self.time = time
+        self.date = currentDateTime.date()
+        self.time = currentDateTime.time()
 
     # Return writeable reading for the database
     def make_writeable(self):

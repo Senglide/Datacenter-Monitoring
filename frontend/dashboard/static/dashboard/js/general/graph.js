@@ -2,7 +2,7 @@ class Graph {
     // Constructor
     constructor(divId, rack, s_type, connectionSettings, detailId) {
         // Graph global variables
-        this.x, this.y, this.xAxis, this.yAxis, this.area, this.dots, this.chart, this.data, this.extremeData, this.clip, this.scatter, this.zoom,
+        this.x, this.y, this.xAxis, this.yAxis, this.area, this.dots, this.chart, this.data, this.maxValue, this.minValue, this.extremeData, this.clip, this.scatter, this.zoom,
         this.divId = divId,
         this.rack = rack,
         this.s_type = s_type,
@@ -46,6 +46,18 @@ class Graph {
                     newData[key] = [];
                     // Fill data arrays with incoming data
                     response.all_readings[key].forEach(reading => {
+                        // Set min and max values
+                        if(!classEnv.minValue) {
+                            classEnv.minValue = reading.sensor_value;
+                        } else if(reading.sensor_value < classEnv.minValue) {
+                            classEnv.minValue = reading.sensor_value;
+                        }
+                        if(!classEnv.maxValue) {
+                            classEnv.maxValue = reading.sensor_value;
+                        } else if(reading.sensor_value > classEnv.maxValue) {
+                            classEnv.maxValue = reading.sensor_value;
+                        }
+                        // Put incoming reading in the right array
                         reading.datetime = new Date(reading.date + 'T' + reading.time);
                         if(resetGraph) {
                             classEnv.data[key].readings.unshift(reading);
@@ -289,7 +301,7 @@ class Graph {
             .domain(d3.extent(this.data[Object.keys(this.data)[0]].readings, function(d) { return d.datetime; }));
         this.y = d3.scaleLinear()
             .range([this.height, 0])
-            .domain([linechartSettings.get(this.s_type).min - linechartSettings.get(this.s_type).delta, linechartSettings.get(this.s_type).max + linechartSettings.get(this.s_type).delta]);
+            .domain([this.minValue - linechartSettings.get(this.s_type).delta, this.maxValue + linechartSettings.get(this.s_type).delta]);
 
         // Define axes
         this.xAxis = d3.axisBottom(this.x).ticks(15).tickSizeOuter(0);

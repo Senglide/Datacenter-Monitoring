@@ -166,32 +166,45 @@ function setCurrentDateAndTime() {
     $('#lastUpdateTime').html(('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) + ':' + ('0' + now.getSeconds()).slice(-2));
 }
 
+// Get current alarm status
+function getCurrentAlarm() {
+    $.ajax({
+        type: 'GET',
+        url: 'get_current_alarm',
+        dataType: 'json',
+        success: function(response) {
+            processAlarm({'a_type': 'smoke', 'alarm': response.smoke});
+            processAlarm({'a_type': 'movement', 'alarm': response.movement});
+        }
+    });
+}
+
 // Websocket
 alarmSocket = new ReconnectingEventSource('/alarmSignal/');
 alarmSocket.addEventListener('message', function(e) {
     var incoming = JSON.parse(e.data);
-    console.log(incoming);
-    switch(incoming.alarm) {
-        case 0:
-            $('#' + incoming.a_type + 'Text').html(incoming.a_type.charAt(0).toUpperCase() + incoming.a_type.slice(1) + ' detection active');
-            $('#' + incoming.a_type + 'Image img').attr('src', '/static/dashboard/images/' + incoming.a_type + '_preloader.svg');
-            if(incoming.a_type == 'movement') {
-                $('#' + incoming.a_type + 'Image img').attr('height', '50px');
-            } else {
-                $('#' + incoming.a_type + 'Image img').attr('height', '15px');
-            }
-            break;
-        case 1:
-            $('#' + incoming.a_type + 'Text').html(incoming.a_type.charAt(0).toUpperCase() + incoming.a_type.slice(1) + ' detected!');
-            $('#' + incoming.a_type + 'Image img').attr('src', '/static/dashboard/images/' + incoming.a_type + '_detected.svg').attr('height', '50px');
-            break;
-        case 2:
-            $('#' + incoming.a_type + 'Text').html(incoming.a_type.charAt(0).toUpperCase() + incoming.a_type.slice(1) + ' detection inactive');
-            $('#' + incoming.a_type + 'Image img').attr('src', '/static/dashboard/images/exlamation_mark.gif').attr('height', '35px');
-            break;
+    processAlarm(incoming);
+}, false);
+
+// Process alarm signal
+function processAlarm(alarm) {
+    if(alarm.alarm == 0) {
+        $('#' + alarm.a_type + 'Text').html(alarm.a_type.charAt(0).toUpperCase() + alarm.a_type.slice(1) + ' detection active');
+        $('#' + alarm.a_type + 'Image img').attr('src', '/static/dashboard/images/' + alarm.a_type + '_preloader.svg');
+        if(alarm.a_type == 'movement') {
+            $('#' + alarm.a_type + 'Image img').attr('height', '50px');
+        } else {
+            $('#' + alarm.a_type + 'Image img').attr('height', '15px');
+        }
+    } else if(alarm.alarm == 1) {
+        $('#' + alarm.a_type + 'Text').html(alarm.a_type.charAt(0).toUpperCase() + alarm.a_type.slice(1) + ' detected!');
+        $('#' + alarm.a_type + 'Image img').attr('src', '/static/dashboard/images/' + alarm.a_type + '_detected.svg').attr('height', '50px');
+    } else {
+        $('#' + alarm.a_type + 'Text').html(alarm.a_type.charAt(0).toUpperCase() + alarm.a_type.slice(1) + ' detection inactive');
+        $('#' + alarm.a_type + 'Image img').attr('src', '/static/dashboard/images/exlamation_mark.gif').attr('height', '35px');
     }
     setCurrentDateAndTime();
-}, false);
+}
 
 // Resize graphs on window width change
 $(window).resize(function () {
@@ -204,7 +217,6 @@ $(window).resize(function () {
         }
     });
 });
-
 
 // Startup script
 var cell1 = new Gridcell('r1'),
@@ -224,3 +236,4 @@ getGrid();
 resetGraphs(gridcells);
 createModalDropdowns();
 setCurrentDateAndTime();
+getCurrentAlarm();

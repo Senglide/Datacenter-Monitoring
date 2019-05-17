@@ -80,12 +80,12 @@ var getAverage = false,
         ['pduStatusT', {'min': 0, 'max': 90}]
     ]),
     linechartSettings = new Map([
-        ['temp', {'delta': 5, 'min': 15, 'max': 35}],
-        ['hum', {'delta': 5, 'min': 70, 'max': 100}],
-        ['pduPower', {'delta': 15, 'min': 210, 'max': 240}],
-        ['pduStatus1', {'delta': 2, 'min': 15, 'max': 35}],
-        ['pduStatus2', {'delta': 2, 'min': 15, 'max': 35}],
-        ['pduStatusT', {'delta': 5, 'min': 30, 'max': 70}]
+        ['temp', {'delta': 3}],
+        ['hum', {'delta': 3}],
+        ['pduPower', {'delta': 15}],
+        ['pduStatus1', {'delta': 3}],
+        ['pduStatus2', {'delta': 3}],
+        ['pduStatusT', {'delta': 6}]
     ]),
     colorPickerOptions = {
         valueElement: null,

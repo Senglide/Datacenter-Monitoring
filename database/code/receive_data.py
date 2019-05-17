@@ -17,8 +17,8 @@ key_location = '/etc/monitoring/ca_certificates/client-API.key'
 client_ip = '10.140.4.160'
 client_port = 8883
 app_name = 'dashboard'
-smoke_detected = False
-movement_detected = False
+smoke_detected = None
+movement_detected = None
 
 # The callback for when the client receives a CONNACK response from the server
 def on_connect(client, userdata, flags, rc):
@@ -45,21 +45,19 @@ def process_reading(reading):
         reading['rack'],
         reading['sensor'],
         reading['sensor_type'],
-        reading['sensor_value'],
-        reading['date'],
-        reading['time']
+        reading['sensor_value']
     )
 
     # Check for alarms
     if (new_reading.sensor_type == 'smoke') or (new_reading.sensor_type == 'movement'):
         if new_reading.sensor_type == 'smoke':
-            if new_reading.sensor_value != smoke_detected:
+            if (smoke_detected == None) or (new_reading.sensor_value != smoke_detected):
                 session = requests.Session()
                 session.trust_env = False
                 r = session.post('http://localhost:8000/dashboard/alarm/' + new_reading.sensor_type + '/' + str(new_reading.sensor_value))
                 smoke_detected = new_reading.sensor_value
         else:
-            if new_reading.sensor_value != movement_detected:
+            if (movement_detected == None) or (new_reading.sensor_value != movement_detected):
                 session = requests.Session()
                 session.trust_env = False
                 r = session.post('http://localhost:8000/dashboard/alarm/' + new_reading.sensor_type + '/' + str(new_reading.sensor_value))

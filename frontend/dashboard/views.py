@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.conf import settings
 
 # Create your views here.
 import datetime
@@ -20,6 +21,10 @@ def index(request):
 # Grid testing page
 def detail(request):
     return render(request, 'dashboard/detail.html')
+
+# Get current alarm
+def get_current_alarm(request):
+    return JsonResponse({'smoke': settings.SMOKE_ALARM, 'movement': settings.MOVEMENT_ALARM})
 
 # Get newest readings by rack and type
 def get_newest_readings(request, racks, s_type, amount):
@@ -85,6 +90,10 @@ def format_readings(readings):
 # Alarm api link
 @csrf_exempt
 def alarm(request, a_type, alarm):
+    if(a_type == 'smoke'):
+        settings.SMOKE_ALARM = alarm
+    else:
+        settings.MOVEMENT_ALARM = alarm
     send_event('alarmChannel', 'message', {'a_type': a_type, 'alarm': alarm})
     return JsonResponse({})
 
