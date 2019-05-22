@@ -172,7 +172,6 @@ while True:
 	
 	toSend = str(Json)
 	client1.publish(MQTT_PATH, toSend)
-	print(data)
 	time.sleep(1)
 	#client1.loop()
 	
