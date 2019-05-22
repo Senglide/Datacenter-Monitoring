@@ -20,25 +20,26 @@
       <div>
         <div style="float:left">
           <a class="navbar-brand">Data Center Details</a>
+          <a id="historyLink" href="/dashboard/history"><i class="fas fa-history fa-lg"></i></a>
         </div>
       </div>
     </nav>
     <!-- Main container -->
     <div class="myContainer">
-      <ul class="nav nav-tabs justify-content-end">
-        <li class="nav-item">
-          <h5>Title</h5>
-        </li>
-        <li class="nav-item">
-          <a id="settingsTrigger" data-toggle="modal" data-target="#settingsModal" data-backdrop="static" data-keyboard="false">
+      <div id="detailPageHeader" class="row mtRow">
+        <div class="col-md-1"><i id="resetDetailGraph" class="fas fa-redo pointerCursor" hidden="true"></i></div>
+        <div class="col-md-10"><h5 id="detailPageTitle">Select a date and rack to fetch data</h5></div>
+        <div class="col-md-1">
+          <a id="settingsTrigger" class="pointerCursor" data-toggle="modal" data-target="#settingsModal" data-backdrop="static" data-keyboard="false">
             <i class="fas fa-cogs"></i>
           </a>
-        </li>
-      </ul>
-      <div class="row">
+        </div>
+      </div>
+      <hr>
+      <div class="row mtRow">
         <div class="col-md-1 form-group">
           <div class="input-group">
-            <div id="previousButton" class="input-group-prepend vertical">
+            <div id="previousButton" class="input-group-prepend vertical pointerCursor">
               <div class="input-group-text"><i class="fas fa-angle-double-left"></i></div>
             </div>
           </div>
@@ -71,7 +72,7 @@
         </div>
         <div class="col-md-1 form-group">
           <div class="input-group">
-            <div id="nextButton" class="input-group-append right vertical">
+            <div id="nextButton" class="input-group-append right vertical pointerCursor">
               <div class="input-group-text"><i class="fas fa-angle-double-right"></i></div>
             </div>
           </div>
@@ -81,11 +82,14 @@
         <div class="col-md-12" id="detailGraph"></div>
       </div>
       <div class="row">
-        <table class="col-md-12">
-          <thead></thead>
-          <tbody id="detailBody"></tbody>
-          <tfoot></tfoot>
-        </table>
+        <div id="timestampTable" class="col-sm-1"><table></table></div>
+        <div class="col-sm-9">
+          <div id="valueTable" class="row"></div>
+        </div>
+        <div id="alarmTable" class="col-sm-2"><table></table></div>
+      </div>
+      <div class="row">
+        <table class="col-md" id="detailBody"></table>
       </div>
       <!-- Settings modal -->
       <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -109,6 +113,10 @@
                 <label class="col-sm-6 col-form-label">Interval time:</label>
                 <div class="dropdown col-sm-6"></div>
               </div>
+              <!-- <div id="numberOfTablesSetting" class="form-group row">
+                <label class="col-sm-6 col-form-label">Number of tables:</label>
+                <div class="dropdown col-sm-6"></div>
+              </div> -->
             </div>
             <!-- Modal footer -->
             <div id="saveSettings" class="modal-footer">
@@ -148,6 +156,7 @@
     <script type="text/javascript" src="{% static 'dashboard/lib/js/tempusdominus-bootstrap-4.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/settings.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/general/functions.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/general/graph.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/detail/detail.js' %}"></script>
     <script type="text/javascript" src="{% static 'dashboard/js/detail/detail-handlers.js' %}"></script>

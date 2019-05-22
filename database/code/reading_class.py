@@ -13,6 +13,7 @@ class Reading(object):
         self.sensor = sensor
         self.sensor_type = sensor_type
         self.sensor_value = sensor_value
+        self.datetime = currentDateTime.timestamp()
         self.date = currentDateTime.date()
         self.time = currentDateTime.time()
 
@@ -23,6 +24,7 @@ class Reading(object):
             "sensor": self.sensor,
             "sensor_type": self.sensor_type,
             "sensor_value": self.sensor_value,
+            "datetime": self.datetime,
             "date": str(self.date),
             "time": str(self.time)
         }

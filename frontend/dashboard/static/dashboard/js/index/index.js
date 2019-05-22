@@ -69,7 +69,7 @@ function resetGraphs(inputGridcells) {
         if(gridcell.graph) {
             if(gridcell.graphType == 'Linechart') {
                 gridcell.graph.resize();
-                gridcell.graph.getData(undefined, true, getAverage);
+                gridcell.graph.getData(undefined, true);
             } else if(gridcell.graphType == 'Gauge') {
                 gridcell.graph.getData(true);
             }
@@ -84,7 +84,7 @@ function resetTimer() {
         gridcells.forEach(gridcell => {
             if(gridcell.graph) {
                 if(gridcell.graphType == 'Linechart') {
-                    gridcell.graph.getData(undefined, false, getAverage);
+                    gridcell.graph.getData(undefined, false);
                 } else if(gridcell.graphType == 'Gauge') {
                     gridcell.graph.getData(false);
                 }
@@ -166,6 +166,18 @@ function setCurrentDateAndTime() {
     $('#lastUpdateTime').html(('0' + now.getHours()).slice(-2) + ':' + ('0' + now.getMinutes()).slice(-2) + ':' + ('0' + now.getSeconds()).slice(-2));
 }
 
+// Get weather data
+function getWeatherData() {
+    $.ajax({
+        type: 'GET',
+        url: 'http://api.openweathermap.org/data/2.5/weather?id=333772&APPID={133b2bfa7035fa239880901b9489c507}',
+        dataType: 'json',
+        success: function(response) {
+            console.log(response);
+        }
+    });
+}
+
 // Get current alarm status
 function getCurrentAlarm() {
     $.ajax({
@@ -180,7 +192,7 @@ function getCurrentAlarm() {
 }
 
 // Websocket
-alarmSocket = new ReconnectingEventSource('/alarmSignal/');
+alarmSocket = new ReconnectingEventSource('/ws/alarmSignal/');
 alarmSocket.addEventListener('message', function(e) {
     var incoming = JSON.parse(e.data);
     processAlarm(incoming);
@@ -219,21 +231,22 @@ $(window).resize(function () {
 });
 
 // Startup script
-var cell1 = new Gridcell('r1'),
-    cell2 = new Gridcell('r2');
-cell1.rack = '1';
-cell2.rack = '1';
-cell1.s_type = 'temp';
-cell2.s_type = 'pduPower';
-cell1.graphType = 'Linechart';
-cell2.graphType = 'Linechart';
-cell1.graph = new Graph(cell1.gridcellId, cell1.rack, cell1.s_type, {'resetString': connectionBlocks.prefix + cell1.rack + '/' + cell1.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + cell1.rack + '/' + cell1.s_type + '/' + refreshSettings.amount});
-cell2.graph = new Graph(cell2.gridcellId, cell2.rack, cell2.s_type, {'resetString': connectionBlocks.prefix + cell2.rack + '/' + cell2.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + cell2.rack + '/' + cell2.s_type + '/' + refreshSettings.amount});
-gridcells.push(cell1);
-gridcells.push(cell2);
+var iterator = 1;
+s_types.forEach(s_type => {
+    if(!s_type.includes(' ')) {
+        var gridcell = new Gridcell('r' + iterator);
+        gridcell.rack = getRackString();
+        gridcell.s_type = s_type;
+        gridcell.graphType = 'Linechart';
+        gridcell.graph = new Graph(gridcell.gridcellId, gridcell.rack, gridcell.s_type, {'resetString': connectionBlocks.prefix + gridcell.rack + '/' + gridcell.s_type + connectionBlocks.suffix, 'refreshString': 'get_newest_readings/' + gridcell.rack + '/' + gridcell.s_type + '/' + refreshSettings.amount});
+        gridcells.push(gridcell);
+        iterator ++;
+    }
+});
 $('#rowDropdown').html(gridDimensions.row);
 getGrid();
 resetGraphs(gridcells);
 createModalDropdowns();
 setCurrentDateAndTime();
 getCurrentAlarm();
+// getWeatherData();

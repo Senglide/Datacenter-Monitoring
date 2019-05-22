@@ -5,6 +5,7 @@
 # Imports
 import paho.mqtt.client as mqtt
 import json
+import requests
 
 from reading_class import Reading
 from db_writer import write_reading
@@ -40,6 +41,10 @@ def on_message(client, userdata, message):
 
 # Process and write the reading
 def process_reading(reading):
+    # Make alarm values available
+    global smoke_detected
+    global movement_detected
+
     # Create new reading
     new_reading = Reading(
         reading['rack'],
@@ -70,6 +75,7 @@ def process_reading(reading):
         collection_name = app_name + '_' + new_reading.sensor_type
     else:
         collection_name = app_name + '_rack_' + str(new_reading.rack)
+        
     # Send the reading to the db_writer
     write_reading(new_writeable_reading, collection_name)
 

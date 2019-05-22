@@ -144,7 +144,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = '/var/www/frontend/static/'
+STATIC_ROOT = '/home/mis/static'
 
 # Alarm values
 SMOKE_ALARM = 0

@@ -1,13 +1,9 @@
-td {
+td, th {
     text-align: center;
 }
 
 .detailTarget {
     background-color: gray;
-}
-
-.dropdown-item {
-    cursor: pointer;
 }
 
 .right {
@@ -24,16 +20,18 @@ td {
     margin-top: 250px;
 }
 
-.nav-tabs li:first-child {
-    width: 75%;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.nav-tabs li:last-child, #previousButton, #nextButton {
+.dropdown-item, .pointerCursor {
     cursor: pointer;
 }
 
-.nav {
-    margin: 15px 0px;
+#detailPageHeader {
+    text-align: center;
+}
+
+hr {
+    margin: 8px 0px;
+}
+
+.mtRow {
+    margin-top: 15px;
 }

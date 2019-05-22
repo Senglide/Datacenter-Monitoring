@@ -1,0 +1,64 @@
+.darkBorder {
+    padding: 5px 0px;
+    border: 2px solid #3949ab;
+}
+
+.mtRow {
+    margin-top: 15px;
+}
+
+.columns {
+    height: 250px;
+    border: 2px solid #7986cb;
+    margin: 5px 25px;
+}
+
+.lightBorder {
+    border: 2px solid #7986cb;
+    margin: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.legendCol {
+    padding: 0px;
+}
+
+.legendRow {
+    padding-left: 25%;
+}
+
+.graphLegend {
+    padding-top: 5%;
+}
+
+.gridcellGraphColumn div, .preloader {
+    position: absolute;
+    bottom: 0;
+}
+
+.graphResetButton {
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.gridcellTitleRow .col-sm-2 {
+    padding: 0;
+}
+
+.titleCol, #gridArea, .setupCol, .setupCol div {
+    text-align: center;
+}
+ 
+#preloader {
+    margin-top: 250px;
+    margin-bottom: 250px;
+}
+
+.dropdown-item {
+    cursor: pointer;
+}
+
+#gridArea {
+    margin: 5px -15px;
+}

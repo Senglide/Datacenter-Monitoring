@@ -1,5 +1,4 @@
-var getAverage = false,
-    today = new Date(),
+var today = new Date(),
     racks = [1, 4, 6],
     s_types = new Map([
         ['temp', 'Temperature (°C)'],
@@ -15,6 +14,7 @@ var getAverage = false,
         ['pduStatusT', 'Total Amperage (A)'],
         ['Total Amperage (A)', 'pduStatusT']
     ]),
+    alarm_types = ['smoke', 'movement'],
     detailSettingsOptions = new Map([
         ['scope', new Map([
             ['15 Minutes', 900],
@@ -45,7 +45,13 @@ var getAverage = false,
             [300, '5 Minutes'],
             ['10 Minutes', 600],
             [600, '10 Minutes']
-        ])]
+        ])],
+        // ['numberOfTables', new Map([
+        //     ['1', 1],
+        //     [1, '1'],
+        //     ['2', 2],
+        //     [2, '2']
+        // ])]
     ]),
     dashboardSettingsOptions = new Map([
         ['row', [1, 2, 3]],
@@ -54,9 +60,9 @@ var getAverage = false,
             ['5 Minutes', {'time': 300, 'amount': 30}],
         ])],
         ['scope', new Map([
-            ['15 Minutes', {'prefix': 'get_newest_readings/', 'suffix': '/90', 'getAverage': false}],
-            ['1 Hour', {'prefix': 'get_newest_readings/', 'suffix': '/360', 'getAverage': true}],
-            ['1 Day', {'prefix': 'get_readings_by_date/', 'suffix': '/' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(), 'getAverage': true}]
+            ['15 Minutes', {'prefix': 'get_newest_readings/', 'suffix': '/90'}],
+            ['1 Hour', {'prefix': 'get_newest_readings/', 'suffix': '/360'}],
+            ['1 Day', {'prefix': 'get_readings_by_date/', 'suffix': '/' + today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate(),}]
         ])]
     ]),
     visualOptions = new Map([
@@ -67,7 +73,7 @@ var getAverage = false,
         's_type': 'temp'
     },
     defaultDashboardVariables = {
-        'row': 2,
+        'row': s_types.size / 2,
         'refresh': '5 Minutes',
         'scope': '15 Minutes'
     },

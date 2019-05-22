@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/bootstrap-4.3.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/fontawesome-5.8.1.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/lib/css/tempusdominus-bootstrap-4.min.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/styles/general.css' %}" media="all">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/styles/history.css' %}" media="all">
+  </head>
+  <!-- Body -->
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a class="navbar-brand homelink" href="/dashboard">
+        <img src="{% static 'dashboard/images/ju_logo.jpg' %}" width="35" height="35" class="d-inline-block align-top" alt="Jimma University Logo">
+        Jimma University
+      </a>
+      <div>
+        <div style="float:left">
+          <a class="navbar-brand">Data Center History</a>
+          <a id="detailLink" href="/dashboard/detail"><i class="fas fa-search fa-lg"></i></a>
+        </div>
+      </div>
+    </nav>
+    <!-- Main container -->
+    <div class="myContainer">
+        <!-- Setup section -->
+        <div class="row mtRow darkBorder">
+            <div id="setupCol1" class="col-sm setupCol lightBorder">
+                <h6>Lookup type:</h6>
+                <button class="btn btn-outline-secondary btn-md dropdown-toggle" type="button" id="lookupTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Choose a lookup type
+                </button>
+                <div id="lookupTypeMenu" class="dropdown-menu" aria-labelledby="lookupTypeDropdown">
+                    <a class="dropdown-item typeDropdown-item">Time range</a>
+                    <a class="dropdown-item typeDropdown-item">History</a>
+                </div>
+            </div>
+            <div id="setupCol2" class="col-sm setupCol lightBorder">
+              <div id="historyTypeRow" class="row" hidden="true">
+                <div class="col-sm-12">
+                    <h6>Time unit:</h6>
+                    <button class="btn btn-outline-secondary btn-md dropdown-toggle" type="button" id="historyTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Choose a time unit
+                    </button>
+                    <div id="historyTypeMenu" class="dropdown-menu" aria-labelledby="historyTypeDropdown">
+                        <a class="dropdown-item historyTypeDropdown-item">10 Seconds</a>
+                        <a class="dropdown-item historyTypeDropdown-item">1 Minute</a>
+                        <a class="dropdown-item historyTypeDropdown-item">1 Hour</a>
+                        <a class="dropdown-item historyTypeDropdown-item">1 Day</a>
+                        <a class="dropdown-item historyTypeDropdown-item">1 Week</a>
+                        <a class="dropdown-item historyTypeDropdown-item">1 Month</a>
+                        <a class="dropdown-item historyTypeDropdown-item">1 Year</a>
+                    </div>
+                </div>  
+              </div>
+              <div id="rangeFromRow" class="row" hidden="true">
+                <div class="col-sm-12">
+                  <h6>From:</h6>
+                  <div class="form-group">
+                    <div class="input-group" id="datepickerFrom" data-target-input="nearest">
+                      <input type="text" class="form-control datetimepicker-input" data-target="#datepickerFrom"/>
+                      <div class="input-group-append" data-target="#datepickerFrom" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="setupCol3" class="col-sm setupCol lightBorder">
+                <div id="historyAmountRow" class="row" hidden="true">
+                  <div class="col-sm-12">
+                      <h6>Time amount:</h6>
+                      <button class="btn btn-outline-secondary btn-md dropdown-toggle" type="button" id="historyAmountDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Choose an amount
+                      </button>
+                      <div id="historyAmountMenu" class="dropdown-menu" aria-labelledby="historyAmountDropdown"></div>
+                  </div>  
+                </div>
+                <div id="rangeToRow" class="row" hidden="true">
+                    <div class="col-sm-12">
+                        <h6>To:</h6>
+                        <div class="form-group">
+                            <div class="input-group" id="datepickerTo" data-target-input="nearest">
+                                <input type="text" class="form-control datetimepicker-input" data-target="#datepickerTo"/>
+                                <div class="input-group-append" data-target="#datepickerTo" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fas fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="gridArea" class="darkBorder" hidden="true"></div>
+        <!-- Error modal -->
+        <div id="errorModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Modal body text goes here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+                </div>
+            </div>
+        </div>
+      <!-- Settings modal -->
+      <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <!-- Modal header -->
+            <div class="modal-header">
+              <h5 class="modal-title mx-auto" id="settingsModalLabel">Dashboard Settings</h5>
+            </div>
+            <!-- Modal body -->
+            <div id="settings" class="modal-body"></div>
+            <!-- Modal footer -->
+            <div id="saveSettings" class="modal-footer">
+              <button class="btn btn-secondary btn-sm mr-auto">Cancel</button>
+              <button class="btn btn-secondary btn-sm">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Detail modal -->
+      <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <!-- Modal header -->
+            <div class="modal-header">
+              <h5 class="modal-title" id="detailModalLabel">Sensor reading details</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+              <ul>
+                <li id="date"></li>
+                <li id="value"></li>
+              </ul>
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+              <button id="moreInfo" class="btn btn-secondary btn-sm">Get more info</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Scripts -->
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/popper-1.15.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/bootstrap-4.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/moment-with-locales-2.24.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/d3-5.9.2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/lib/js/jscolor-2.0.5.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/general/settings.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/general/functions.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/general/graph.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/general/gridcell.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/history/history.js' %}"></script>
+    <script type="text/javascript" src="{% static 'dashboard/js/history/history-handlers.js' %}"></script>
+  </body>
+</html>

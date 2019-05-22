@@ -1,13 +1,14 @@
 class Graph {
     // Constructor
-    constructor(divId, rack, s_type, connectionSettings, detailId) {
+    constructor(divId, rack, s_type, connectionSettings = undefined, detailId = undefined, isHistoryGraph = undefined) {
         // Graph global variables
-        this.x, this.y, this.xAxis, this.yAxis, this.area, this.dots, this.chart, this.data, this.maxValue, this.minValue, this.extremeData, this.clip, this.scatter, this.zoom,
+        this.x, this.y, this.xAxis, this.yAxis, this.area, this.dots, this.chart, this.data, this.maxValue, this.minValue, this.clip, this.scatter, this.zoom,
         this.divId = divId,
         this.rack = rack,
         this.s_type = s_type,
         this.connectionSettings = connectionSettings,
         this.detailId = detailId,
+        this.isHistoryGraph = isHistoryGraph;
         this.lines = [],
         this.margin = {top: 10, right: 10, bottom: 20, left: 30},
         this.width = $('#' + this.divId + 'Graph').width() - this.margin.left - this.margin.right,
@@ -25,14 +26,12 @@ class Graph {
     }
 
     // Get data for graph
-    getData(classEnv = this, resetGraph, getAverage) {
+    getData(classEnv = this, resetGraph) {
         // Function variables
         var newData = {};
-        // Get new data
+        // Set correct margins
         this.calculateMargins();
-        // Reset min and max values
-        this.minValue = undefined;
-        this.maxValue = undefined;
+        // Get new data
         $.ajax({
             type: 'GET',
             url: this.prepareForData(resetGraph),
@@ -42,41 +41,24 @@ class Graph {
                 Object.keys(response.all_readings).forEach(key => {
                     // Create new arrays when the graph is being reset
                     if(resetGraph) {
-                        classEnv.data[key] = {}
-                        classEnv.data[key]['readings'] = [];
-                        classEnv.data[key]['extremeData'] = [];
+                        classEnv.data[key] = [];
                     }
                     newData[key] = [];
                     // Fill data arrays with incoming data
                     response.all_readings[key].forEach(reading => {
-                        // Set min and max values
-                        if(!classEnv.minValue) {
-                            classEnv.minValue = reading.sensor_value;
-                        } else if(reading.sensor_value < classEnv.minValue) {
-                            classEnv.minValue = reading.sensor_value;
-                        }
-                        if(!classEnv.maxValue) {
-                            classEnv.maxValue = reading.sensor_value;
-                        } else if(reading.sensor_value > classEnv.maxValue) {
-                            classEnv.maxValue = reading.sensor_value;
-                        }
                         // Put incoming reading in the right array
                         reading.datetime = new Date(reading.date + 'T' + reading.time);
                         if(resetGraph) {
-                            classEnv.data[key].readings.unshift(reading);
+                            classEnv.data[key].unshift(reading);
                         } else {
                             newData[key].unshift(reading);
                         }
                     });
                     // Add new data to existing data
-                    classEnv.data[key].readings = classEnv.data[key].readings.concat(newData[key]);
-                    // Get averages if necessary
-                    if(getAverage) {
-                        classEnv.calculateExtremeData()
-                    } else {
-                        classEnv.data[key].extremeData = classEnv.data[key].readings.slice();
-                    }
+                    classEnv.data[key] = classEnv.data[key].concat(newData[key]);
                 });
+                // Get min and max values
+                classEnv.calculateMinMax();
                 // Finish composing data and call next function
                 if(resetGraph) {
                     $('#' + classEnv.divId + ' .preloader').prop('hidden', true);
@@ -97,31 +79,10 @@ class Graph {
             return this.connectionSettings.resetString;
         } else { 
             Object.keys(this.data).forEach(key => {
-                this.data[key].readings = this.data[key].readings.slice(refreshSettings.amount, this.data[key].readings.length);
+                this.data[key] = this.data[key].slice(refreshSettings.amount, this.data[key].length);
             });
             return this.connectionSettings.refreshString;
         }
-    }
-
-    // Get the odd values from the data
-    calculateExtremeData() {
-        Object.keys(this.data).forEach(key => {
-            // Function variables
-            var averageOfValues,
-                totalOfValues = 0,
-                delta = linechartSettings.get(this.s_type).delta;
-            // Calculate average of values
-            this.data[key].readings.forEach(reading => {
-                totalOfValues += reading.sensor_value;
-            })
-            averageOfValues = totalOfValues / this.data[key].readings.length;
-            // Add odd values to extremeData array
-            this.data[key].readings.forEach(reading => {
-                if(reading.sensor_value < averageOfValues - delta || reading.sensor_value > averageOfValues + delta || reading.id == this.detailId) {
-                    this.data[key].extremeData.push(reading);
-                }
-            });
-        });
     }
 
     createGraph(classEnv = this) {
@@ -171,16 +132,21 @@ class Graph {
 
                 // Append area to chart
                 this.scatter.append('path')
-                    .data(this.data[key].readings)
+                    .data(this.data[key])
                     .attr('class', 'area')
                     .attr('fill', '#69b3a2')
                     .attr('fill-opacity', .3)
                     .attr('stroke', 'none')
-                    .attr('d', this.area(this.data[key].readings));
+                    .attr('d', this.area(this.data[key]));
             }
 
             // Check if line exists for this rack
-            var rack = key.substring(0, 1);
+            if(this.detailId) {
+                var rack = this.rack;
+            } else {
+                var rack = key.substring(0, 1);
+
+            }
             var line;
             this.lines.forEach(lineInfo => {
                 if(lineInfo.rack == rack) {
@@ -212,26 +178,27 @@ class Graph {
             
             // Add line to graph
             this.scatter.append('path')
-                .data(this.data[key].readings)
+                .data(this.data[key])
                 .attr('class', 'line' + index)
                 .attr('fill', 'none')
                 .attr('stroke', line.color)
                 .attr('stroke-width', 4)
-                .attr('d', line.line(this.data[key].readings));
+                .attr('d', line.line(this.data[key]));
 
             // Append dots to chart
             var dot = this.scatter.append('g')
                 .selectAll('#' + this.divId + 'Graph .dot' + index)
-                .data(this.data[key].extremeData)
+                .data(this.data[key])
                 .enter()
                 .append('circle')
                     .attr('class', 'dot')
-                    .attr('fill', 'red')
+                    .attr('fill', line.color)
                     .attr('stroke', 'none')
                     .attr('cursor', 'pointer')
                     .attr('cx', function(d) { return classEnv.x(d.datetime); })
                     .attr('cy', function(d) { return classEnv.y(d.sensor_value); })
-                    .attr('r', 3)
+                    .attr('r', 4)
+                    .attr('fill-opacity', '0')
                     .each(function(d) {
                         var head = d3.select(this);
                         if(classEnv.detailId) {
@@ -239,6 +206,14 @@ class Graph {
                                 head.attr('fill', 'green');
                             }
                         }
+                    })
+                    .on('mouseover', function() {
+                        d3.select(this)
+                            .attr('fill', 'red')
+                            .attr('fill-opacity', '1');
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this).attr('fill-opacity', '0');
                     })
                     .on('click', function(d) {
                         $('#date').html('Date of sensor reading: ' + d.datetime);
@@ -267,13 +242,19 @@ class Graph {
         // Add zoom to the chart
         d3.select('#' + this.divId + 'Graph svg').call(this.zoom);
 
-        this.checkCheckBoxesAndColorPickers();
+        if(!this.detailId) {
+            this.checkCheckBoxesAndColorPickers();
+        }
     }
 
     // Zoom
     updateZoomChart(classEnv) {
         // Show reset button
-        $('#' + classEnv.divId + ' .graphResetButton').prop('hidden', false);
+        if(classEnv.detailId) {
+            $('#resetDetailGraph').prop('hidden', false);
+        } else {
+            $('#' + classEnv.divId + ' .graphResetButton').prop('hidden', false);
+        }
 
         // Recover the new scale
         var newX = d3.event.transform.rescaleX(classEnv.x);
@@ -289,6 +270,9 @@ class Graph {
 
     // Update graph
     updateGraph() {
+        // Recalculate min and max values
+        this.calculateMinMax();
+
         // Draw axes
         this.updateAndDrawAxes();
         
@@ -298,11 +282,10 @@ class Graph {
 
     // Draw axes
     updateAndDrawAxes() {
-        console.log('drawaxes');
         // Set axes ranges and domains
         this.x = d3.scaleTime()
             .range([0, this.width])
-            .domain(d3.extent(this.data[Object.keys(this.data)[0]].readings, function(d) { return d.datetime; }));
+            .domain(d3.extent(this.data[Object.keys(this.data)[0]], function(d) { return d.datetime; }));
         this.y = d3.scaleLinear()
             .range([this.height, 0])
             .domain([parseInt(this.minValue) - linechartSettings.get(this.s_type).delta, parseInt(this.maxValue) + linechartSettings.get(this.s_type).delta]);
@@ -335,7 +318,7 @@ class Graph {
                 .y(function(d) { return y(d.sensor_value); });
             this.chart.select('#' + this.divId + 'Graph .line' + index)
                 .attr('stroke', line.color)
-                .attr('d', drawnLine(this.data[key].readings));
+                .attr('d', drawnLine(this.data[key]));
             this.lines[index] = {'rack': line.rack, 'line': drawnLine, 'color': line.color};
 
             // Line legend
@@ -345,7 +328,7 @@ class Graph {
             }
             
             // Dots
-            var dot = this.dots[index].data(this.data[key].extremeData)
+            var dot = this.dots[index].data(this.data[key])
                 .attr('cx', function(d) { return x(d.datetime); })
                 .attr('cy', function(d) { return y(d.sensor_value); });
             this.dots[index] = dot;
@@ -356,7 +339,7 @@ class Graph {
                     .x(function(d) { return x(d.datetime); })
                     .y1(function(d) { return y(d.sensor_value); });
 
-                this.chart.select('.area').attr('d', this.area(this.data[key].readings));
+                this.chart.select('.area').attr('d', this.area(this.data[key]));
             }
         });
     }
@@ -398,5 +381,26 @@ class Graph {
     calculateMargins() {
         var loaderMargin = ($('#' + this.divId + ' .gridcellGraphColumn').width() - $('#' + this.divId + 'Graph .preloader').width()) / 2;
         $('#' + this.divId + 'Graph .preloader').css('margin-left', loaderMargin);
+    }
+
+    // Calculate min and max values
+    calculateMinMax() {
+        var i = 0;
+        Object.keys(this.data).forEach(key => {
+            this.data[key].forEach(reading => {
+                if(i == 0) {
+                    this.minValue = reading.sensor_value;
+                    this.maxValue = reading.sensor_value;
+                    i ++;
+                } else {
+                    if(reading.sensor_value < this.minValue) {
+                        this.minValue = reading.sensor_value;
+                    }
+                    if(reading.sensor_value > this.maxValue) {
+                        this.maxValue = reading.sensor_value;
+                    }
+                }
+            });
+        });
     }
 }

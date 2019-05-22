@@ -1,5 +1,5 @@
 // Nav click handler
-$('.homeLink').click(function() {
+$('.homeLink, #historyLink').click(function() {
     sessionStorage.setItem('getDetails', 'false');
 });
 
@@ -69,6 +69,12 @@ $('#intervalSetting').on('click', '#intervalMenu a', function() {
     $('#intervalDropdown').html($(this).text());
 });
 
+// Set number of tables option
+$('#numberOfTablesSetting').on('click', '#numberOfTablesMenu a', function() {
+    detailSettings.numberOfTables = detailSettingsOptions.get('numberOfTables').get($(this).text());
+    $('#numberOfTablesDropdown').html($(this).text());
+});
+
 // Open settings click handler
 $('#settingsTrigger').click(function() {
     setBackupSettings();
@@ -80,6 +86,7 @@ $('#saveSettings button').click(function() {
         detailSettings.scope = backupSettings.scope;
         detailSettings.jump = backupSettings.jump;
         detailSettings.interval = backupSettings.interval;
+        detailSettings.numberOfTables = backupSettings.numberOfTables;
         detailSettingsOptions.forEach((value, key) => {
             $('#' + key + 'Dropdown').html(detailSettingsOptions.get(key).get(backupSettings[key]));
         })
@@ -90,4 +97,10 @@ $('#saveSettings button').click(function() {
         }
     }
     $('#settingsModal').modal('toggle');
+});
+
+// Reset graph after zoom handler
+$('#resetDetailGraph').click(function() {
+    graph.updateGraph();
+    $(this).prop('hidden', true);
 });

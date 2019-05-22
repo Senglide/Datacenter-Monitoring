@@ -22,6 +22,10 @@ def index(request):
 def detail(request):
     return render(request, 'dashboard/detail.html')
 
+# Grid testing page
+def history(request):
+    return render(request, 'dashboard/history.html')
+
 # Get current alarm
 def get_current_alarm(request):
     return JsonResponse({'smoke': settings.SMOKE_ALARM, 'movement': settings.MOVEMENT_ALARM})
@@ -56,6 +60,28 @@ def get_all_readings_by_date(request, rack, r_date):
     readings = dbRack.objects.filter(date__contains=date).order_by('time').reverse()
     return JsonResponse({'readings': format_readings(readings)})
 
+# Get readings by rack and date
+def get_all_readings_by_range(request, racks, date_from, date_to):
+    all_readings = {}
+    rack_list = racks.split('-')
+    for rack in rack_list:
+        db_rack = get_rack(rack)
+        readings = db_rack.objects.filter(datetime__gte=date_from, datetime__lte=date_to).order_by('-_id')
+        all_readings[rack + '-readings'] = format_readings(readings)
+    
+    return JsonResponse({'all_readings': all_readings})
+
+# Get readings by rack and date
+def get_all_readings_since_date(request, racks, date):
+    all_readings = {}
+    rack_list = racks.split('-')
+    for rack in rack_list:
+        db_rack = get_rack(rack)
+        readings = db_rack.objects.filter(datetime__gte=date).order_by('-_id')
+        all_readings[rack + '-readings'] = format_readings(readings)
+    
+    return JsonResponse({'all_readings': all_readings})
+
 
 # Get the right model based on the requested rack
 def get_rack(rack):
@@ -78,6 +104,7 @@ def format_readings(readings):
     for reading in readings:
         formatted_reading = {
             'id': str(reading._id),
+            'rack': reading.rack,
             'sensor_value': reading.sensor_value,
             'sensor_type': reading.sensor_type,
             'date': reading.date,

@@ -1,0 +1,13 @@
+[Unit]
+Description=Script that runs daphne asgi server
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/frontend
+ExecStart=/home/mis/.virtualenvs/front-end/bin/daphne -b 127.0.0.1 -p 8000 frontend.asgi:application
+Restart=on-failure RestartSec=10 KillMode=process
+
+[Install]
+WantedBy=multi-user.target

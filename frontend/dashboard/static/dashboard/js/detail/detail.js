@@ -1,16 +1,17 @@
 // Script variables
-var detailReading, startTime, endTime, shownReadings, indeces, backupSettings, averages,
+var detailReading, startTime, endTime, shownReadings, indeces, backupSettings, averages, graph,
     detailsLoaded = false,
     allReadings = [],
     detailSettings = {
         'scope': 7800,
         'jump': 300,
-        'interval': 300
+        'interval': 300,
+        'numberOfTables': 1
     };
 
 // Ajax listener to show preloader
 $(document).ajaxStart(function () {
-    $('#detailBody').html('<tr><td><img id="preloader" src="/static/dashboard/images/ajax-loader.gif"></td></tr>')
+    $('#detailBody').html('<tr><td><img id="preloader" src="/static/dashboard/images/ajax-loader.gif"></td></tr>');
 });
 
 // Set backup settings
@@ -18,7 +19,8 @@ function setBackupSettings() {
     backupSettings = {
         'scope': detailSettings.scope,
         'jump': detailSettings.jump,
-        'interval': detailSettings.interval
+        'interval': detailSettings.interval,
+        'numberOfTables': detailSettings.numberOfTables
     };
 }
 
@@ -37,6 +39,7 @@ function getDetailReadings() {
         url: 'get_all_readings_by_date/' + detailReading.rack + '/' + detailReading.date,
         dataType: 'json',
         success: function(response) {
+            allReadings = [];
             detailsLoaded = false;
             generateShownReadings(response.readings, true);
             detailsLoaded = true;
@@ -46,14 +49,119 @@ function getDetailReadings() {
 
 // Draw the detail graph
 function drawDetailGraph() {
-    var graph = new Graph('detail', detailReading.rack, detailReading.s_type, undefined, detailReading.id);
+    graph = new Graph('detail', detailReading.rack, detailReading.s_type, undefined, detailReading.id);
     graph.data = {};
-    graph.data['shownDetailGraph'] = {};
-    graph.data.shownDetailGraph['readings'] = shownReadings.graph;
-    graph.data.shownDetailGraph['extremeData'] = [];
-    graph.calculateExtremeData();
+    graph.data['shownDetailGraph'] = shownReadings.graph;
+    graph.calculateMinMax();
     graph.erase();
     graph.createGraph();
+}
+
+// Generate timestamp table
+function generateTimestampTable() {
+    var htmlString = '';
+    var j = 0;
+    for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
+        if(i == 0) {
+            htmlString += '<tr><th>&nbsp;</th></tr>';
+        } else if(i == 1) {
+            htmlString += '<tr><td>Average</td></tr>';
+        } else {
+            htmlString += '<tr><td>' + shownReadings[detailReading.s_type][j].time.substring(0, 8) + '</td></tr>';
+            j ++;
+        }
+    }
+    $('#timestampTable table').html(htmlString);
+}
+
+// Generate alarms table
+function generateAlarmsTable() {
+    var htmlString = '';
+    var j = 0;
+    for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
+        htmlString += '<tr>';
+        alarm_types.forEach(alarm_type => {
+            if(i == 0) {
+                if(detailSettings.numberOfTables == 1) {
+                    htmlString += '<th>' + alarm_type.substring(0, 1).toUpperCase() + alarm_type.substring(1, alarm_type.length) + '</th>';
+                } else {
+                    htmlString += '<th>' + alarm_type.substring(0, 1).toUpperCase() + '</th>';
+                }
+            } else if(i == 1) {
+                htmlString += '<td>&nbsp;</td>';
+            } else {
+                htmlString += '<td>' + shownReadings[alarm_type][j].sensor_value + '</td>';
+            }
+        });
+        if(i > 1) {
+            j ++;
+        }
+        htmlString += '</tr>';
+    }
+    $('#alarmTable table').html(htmlString); 
+}
+
+// Generate value table
+function generateValuesTable() {
+    var htmlString = '';
+
+    for(var i = 0; i < detailSettings.numberOfTables; i++) {
+        if(detailSettings.numberOfTables == 1) {
+            htmlString += '<div class="col-sm-12">';
+        } else {
+            htmlString += '<div class="col-sm-6">';
+        }
+        htmlString += '<table>';
+        var j = 0;
+        for(var k = 0; k < shownReadings[detailReading.s_type].length; k++) {
+            htmlString += '<tr>';
+            if(k == 0) {
+                s_types.forEach((value, key) => {
+                    if(key.includes(' ')) {
+                        var headerString = '',
+                            keyPieces = key.split(' ');
+                        keyPieces.forEach((keyPiece, index) => {
+                            if(index == 0) {
+                                if(detailSettings.numberOfTables == 1) {
+                                    headerString += keyPiece.substring(0, 3) + '.';
+                                } else {
+                                    headerString += keyPiece.substring(0, 1);
+                                }
+                            } else {
+                                if(detailSettings.numberOfTables == 1) {
+                                    headerString += ' ' + keyPiece;
+                                } else {
+                                    if(index == keyPieces.length - 1) {
+                                        headerString += ' ' + keyPiece;
+                                    } else {
+                                        headerString += keyPiece.substring(0, 1).toUpperCase();
+                                    }
+                                }
+                            }
+                        });
+                        htmlString += '<th>' + headerString + '</th>';
+                    }
+                });
+            } else if(k == 1) {
+                s_types.forEach((value, key) => {
+                    if(!key.includes(' ')) {
+                        htmlString += '<td>' + Math.round(averages[key].average) + '</td>';
+                    }
+                });
+            } else {
+                s_types.forEach((value, key) => {
+                    if(!key.includes(' ')) {
+                        htmlString += '<td>' + shownReadings[key][j].sensor_value + '</td>';
+                    }
+                });
+                j ++;
+            }
+            htmlString += '</tr>';
+        }
+        htmlString += '</table></div>';
+    }
+    
+    $('#valueTable').html(htmlString);
 }
 
 // Generate detail table with values
@@ -61,15 +169,29 @@ function generateTable() {
     $('#detailBody').html('');
     var htmlString = '';
     var k = 0;
+    var types = getTableHeaders().types;
+    var fullTypes = getTableHeaders().fullTypes;
     for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
         htmlString += '<tr>';
         // Table headers row
         if(i == 0) {
             htmlString += '<td></td>';
-            s_types.forEach((value, key) => {
-                if(key.includes(' ')) {
-                    htmlString += '<th>' + key + '</th>';
+            fullTypes.forEach(fullType => {
+                var headerString = '',
+                    keyPieces = fullType.split(' ');
+                if(keyPieces.length > 1) {
+                    keyPieces.forEach((keyPiece, index) => {
+                        if(index != keyPieces.length - 1) {
+                            headerString += keyPiece.substring(0, 1).toUpperCase();
+                        } else {
+                            headerString += ' ' + keyPiece;
+                        }
+                    });
+                } else {
+                    headerString = fullType.substring(0, 1);
                 }
+
+                htmlString += '<th>' + headerString + '</th>';
             });
         // Averages row
         } else if(i == 1) {
@@ -79,6 +201,7 @@ function generateTable() {
                     htmlString += '<td>' + Math.round(averages[key].average) + '</td>';
                 }
             });
+            htmlString += '<td></td><td></td>';
         // Value rows
         } else {
             var isDetailTarget = false;
@@ -88,14 +211,12 @@ function generateTable() {
             } else {
                 htmlString += '<td>' + shownReadings[detailReading.s_type][k].time.substring(0, 8) + '</td>';
             }
-            s_types.forEach((value, key) => {
-                if(!key.includes(' ')) {
-                    if(k < shownReadings[key].length) {
-                        if(isDetailTarget) {
-                            htmlString += '<td class="detailTarget">' + shownReadings[key][k].sensor_value + '</td>';
-                        } else {
-                            htmlString += '<td>' + shownReadings[key][k].sensor_value + '</td>';
-                        }
+            types.forEach(type => {
+                if(k < shownReadings[type].length) {
+                    if(isDetailTarget) {
+                        htmlString += '<td class="detailTarget">' + shownReadings[type][k].sensor_value + '</td>';
+                    } else {
+                        htmlString += '<td>' + shownReadings[type][k].sensor_value + '</td>';
                     }
                 }
             });
@@ -218,7 +339,10 @@ function generateShownReadings(readings, isNewData) {
     }
     // Draw the detail page
     drawDetailGraph();
-    generateTable();
+    generateTimestampTable();
+    generateAlarmsTable();
+    generateValuesTable();
+    // generateTable();
 }
 
 // Check for complete detailReading object
@@ -232,6 +356,7 @@ function checkToGetReadings() {
             detailReading.s_type = defaultDetailVariables.s_type;
             $('#detailTypeDropdown').html(s_types.get(detailReading.s_type));
         }
+        $('#detailPageTitle').html('Data for ' + detailReading.date + ', rack ' + detailReading.rack);
         detailReading.id = undefined;
         generateShownReadingObjects(true);
         generateTimes();

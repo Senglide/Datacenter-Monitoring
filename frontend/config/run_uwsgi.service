@@ -1,0 +1,13 @@
+[Unit]
+Description=Script that runs uwsgi Django web server
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/frontend
+ExecStart=/home/mis/.virtualenvs/front-end/bin/uwsgi --socket :8001 --module frontend.wsgi
+Restart=on-failure RestartSec=10 KillMode=process
+
+[Install]
+WantedBy=multi-user.target

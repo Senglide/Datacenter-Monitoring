@@ -15,7 +15,6 @@ $('#refreshMenu a').click(function() {
 $('#scopeMenu a').click(function() {
     connectionBlocks.prefix = dashboardSettingsOptions.get('scope').get($(this).text()).prefix;
     connectionBlocks.suffix = dashboardSettingsOptions.get('scope').get($(this).text()).suffix;
-    getAverage =  dashboardSettingsOptions.get('scope').get($(this).text()).getAverage;
     $('#scopeDropdown').html($(this).text());
 });
 
@@ -102,16 +101,6 @@ $('#gridArea').on('click', '.form-check-input' , function() {
             gridcell.rack = rackString;
             // Check if all the requirements for a graph have been fulfilled
             checkToDrawGraph(gridcell);
-        }
-    });
-});
-
-// Reset graph after zoom handler
-$('#gridArea').on('click', '.graphResetButton i' , function() {
-    gridcells.forEach(gridcell => {
-        if(gridcell.gridcellId == $(this).parents().eq(4).attr('id')) {
-            gridcell.graph.updateGraph();
-            $('#' + gridcell.gridcellId + ' .graphResetButton').prop('hidden', true);
         }
     });
 });
