@@ -61,7 +61,7 @@ function drawDetailGraph() {
 function generateTimestampTable() {
     var htmlString = '';
     var j = 0;
-    for(var i = 0; i < shownReadings[detailReading.s_type].length  - 1; i++) {
+    for(var i = 0; i < shownReadings[detailReading.s_type].length  - 2; i++) {
         if(i == 0) {
             htmlString += '<tr><th>&nbsp;</th></tr>';
         } else if(i == 1) {
@@ -82,7 +82,7 @@ function generateTimestampTable() {
 function generateAlarmsTable() {
     var htmlString = '';
     var j = 0;
-    for(var i = 0; i < shownReadings[detailReading.s_type].length - 1; i++) {
+    for(var i = 0; i < shownReadings[detailReading.s_type].length - 2; i++) {
         if((i > 1) && ((j % 2) == 0)) {
             htmlString += '<tr class="accent">';
         } else {
@@ -126,7 +126,7 @@ function generateValuesTable() {
         }
         htmlString += '<table>';
         var j = 0;
-        for(var k = 0; k < shownReadings[detailReading.s_type].length  - 1; k++) {
+        for(var k = 0; k < shownReadings[detailReading.s_type].length  - 2; k++) {
             if((k > 1) && ((j % 2) == 0)) {
                 htmlString += '<tr class="accent">';
             } else {
