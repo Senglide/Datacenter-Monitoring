@@ -10,7 +10,7 @@ class Graph {
         this.detailId = detailId,
         this.isHistoryGraph = isHistoryGraph;
         this.lines = [],
-        this.margin = {top: 10, right: 10, bottom: 20, left: 30},
+        this.margin = {top: 10, right: 10, bottom: 20, left: 40},
         this.width = $('#' + this.divId + 'Graph').width() - this.margin.left - this.margin.right,
         this.height = 200 - this.margin.top - this.margin.bottom;
     }
@@ -37,6 +37,11 @@ class Graph {
             url: this.prepareForData(resetGraph),
             dataType: 'json',
             success: function(response) {
+                if(!classEnv.detailId && !classEnv.isHistoryGraph) {
+                    dashboardIsOnline = true;
+                    $('#statusText').html('Dashboard online');
+                    $('#statusContainer img').attr('src', '/static/dashboard/images/green_circle.jpg');
+                }
                 // Format new data
                 Object.keys(response.all_readings).forEach(key => {
                     // Create new arrays when the graph is being reset
@@ -66,6 +71,13 @@ class Graph {
                     classEnv.createGraph();
                 } else {
                     classEnv.updateGraph();
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(!classEnv.detailId && !classEnv.isHistoryGraph) {
+                    dashboardIsOnline = false;
+                    $('#statusText').html('Dashboard offline');
+                    $('#statusContainer img').attr('src', '/static/dashboard/images/red_circle.jpg');
                 }
             }
         });
@@ -203,21 +215,28 @@ class Graph {
                         var head = d3.select(this);
                         if(classEnv.detailId) {
                             if(d.id == classEnv.detailId) {
-                                head.attr('fill', 'green');
+                                head.attr('fill', 'green')
+                                    .attr('fill-opacity', '1');
                             }
                         }
                     })
-                    .on('mouseover', function() {
-                        d3.select(this)
-                            .attr('fill', 'red')
-                            .attr('fill-opacity', '1');
+                    .on('mouseover', function(d) {
+                        if(d.id != classEnv.detailId) {
+                            d3.select(this)
+                                .attr('fill', 'red')
+                                .attr('fill-opacity', '1');
+                        }
                     })
-                    .on('mouseout', function() {
-                        d3.select(this).attr('fill-opacity', '0');
+                    .on('mouseout', function(d) {
+                        if(d.id != classEnv.detailId) {
+                            d3.select(this).attr('fill-opacity', '0');
+                        }
                     })
                     .on('click', function(d) {
-                        $('#date').html('Date of sensor reading: ' + d.datetime);
-                        $('#value').html('Value of sensor reading: ' + d.sensor_value);
+                        $('#date').html('Sensor reading from ' + d.date + ' at ' + d.time.substring(0, 8));
+                        var typePieces = s_types.get(classEnv.s_type).split(' ');
+                        var unit = typePieces[typePieces.length - 1];
+                        $('#value').html('Rack ' + d.rack + ', value: ' + d.sensor_value + ' ' + unit.substring(1).substring(0, unit.length - 2));
                         $('#detailModal').modal();
                         if(!classEnv.detailId) {
                             $('#moreInfo').on('click', function() {
@@ -388,16 +407,17 @@ class Graph {
         var i = 0;
         Object.keys(this.data).forEach(key => {
             this.data[key].forEach(reading => {
+                var value = parseInt(reading.sensor_value);
                 if(i == 0) {
-                    this.minValue = reading.sensor_value;
-                    this.maxValue = reading.sensor_value;
+                    this.minValue = value;
+                    this.maxValue = value;
                     i ++;
                 } else {
-                    if(reading.sensor_value < this.minValue) {
-                        this.minValue = reading.sensor_value;
+                    if(value < this.minValue) {
+                        this.minValue = value;
                     }
-                    if(reading.sensor_value > this.maxValue) {
-                        this.maxValue = reading.sensor_value;
+                    if(value > this.maxValue) {
+                        this.maxValue = value;
                     }
                 }
             });

@@ -38,19 +38,15 @@
             <table>
               <tr>
                 <th>Current date</th>
-                <th>Outside temperature</th>
               </tr>
               <tr>
                 <td id="dashboardDate"></td>
-                <td>22°C</td>
               </tr>
               <tr>
                 <th>Last update</th>
-                <th>Outside humidity</th>
               </tr>
               <tr>
                 <td id="lastUpdateTime"></td>
-                <td>65%</td>
               </tr>
             </table>
           </div>
@@ -68,10 +64,10 @@
             </table>
           </div>
           <!-- Status indicator -->
-          <div class="statusCol col-sm-2">
+          <div id="statusContainer" class="statusCol col-sm-2">
             <table>
               <tr>
-                <td>Dashboard online</td>
+                <td id="statusText">Dashboard online</td>
               </tr>
               <tr>
                 <td><img src="{% static 'dashboard/images/green_circle.jpg' %}" height="50px"></td>
@@ -143,10 +139,8 @@
             </div>
             <!-- Modal body -->
             <div class="modal-body">
-              <ul>
-                <li id="date"></li>
-                <li id="value"></li>
-              </ul>
+              <div id="date"></div>
+              <div id="value"></div>
             </div>
             <!-- Modal footer -->
             <div class="modal-footer">

@@ -61,13 +61,17 @@ function drawDetailGraph() {
 function generateTimestampTable() {
     var htmlString = '';
     var j = 0;
-    for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
+    for(var i = 0; i < shownReadings[detailReading.s_type].length  - 1; i++) {
         if(i == 0) {
             htmlString += '<tr><th>&nbsp;</th></tr>';
         } else if(i == 1) {
             htmlString += '<tr><td>Average</td></tr>';
         } else {
-            htmlString += '<tr><td>' + shownReadings[detailReading.s_type][j].time.substring(0, 8) + '</td></tr>';
+            if((i > 1) && ((j % 2) == 0)) {
+                htmlString += '<tr class="accent"><td>' + shownReadings[detailReading.s_type][j].time.substring(0, 8) + '</td></tr>';
+            } else {
+                htmlString += '<tr><td>' + shownReadings[detailReading.s_type][j].time.substring(0, 8) + '</td></tr>';
+            }
             j ++;
         }
     }
@@ -78,8 +82,12 @@ function generateTimestampTable() {
 function generateAlarmsTable() {
     var htmlString = '';
     var j = 0;
-    for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
-        htmlString += '<tr>';
+    for(var i = 0; i < shownReadings[detailReading.s_type].length - 1; i++) {
+        if((i > 1) && ((j % 2) == 0)) {
+            htmlString += '<tr class="accent">';
+        } else {
+            htmlString += '<tr>';
+        }
         alarm_types.forEach(alarm_type => {
             if(i == 0) {
                 if(detailSettings.numberOfTables == 1) {
@@ -90,7 +98,12 @@ function generateAlarmsTable() {
             } else if(i == 1) {
                 htmlString += '<td>&nbsp;</td>';
             } else {
-                htmlString += '<td>' + shownReadings[alarm_type][j].sensor_value + '</td>';
+                var value = shownReadings[alarm_type][j].sensor_value;
+                if(value == 0) {
+                    htmlString += '<td>No</td>';
+                } else {
+                    htmlString += '<td>Yes</td>';
+                }
             }
         });
         if(i > 1) {
@@ -113,8 +126,12 @@ function generateValuesTable() {
         }
         htmlString += '<table>';
         var j = 0;
-        for(var k = 0; k < shownReadings[detailReading.s_type].length; k++) {
-            htmlString += '<tr>';
+        for(var k = 0; k < shownReadings[detailReading.s_type].length  - 1; k++) {
+            if((k > 1) && ((j % 2) == 0)) {
+                htmlString += '<tr class="accent">';
+            } else {
+                htmlString += '<tr>';
+            }
             if(k == 0) {
                 s_types.forEach((value, key) => {
                     if(key.includes(' ')) {
@@ -162,70 +179,6 @@ function generateValuesTable() {
     }
     
     $('#valueTable').html(htmlString);
-}
-
-// Generate detail table with values
-function generateTable() {
-    $('#detailBody').html('');
-    var htmlString = '';
-    var k = 0;
-    var types = getTableHeaders().types;
-    var fullTypes = getTableHeaders().fullTypes;
-    for(var i = 0; i < shownReadings[detailReading.s_type].length; i++) {
-        htmlString += '<tr>';
-        // Table headers row
-        if(i == 0) {
-            htmlString += '<td></td>';
-            fullTypes.forEach(fullType => {
-                var headerString = '',
-                    keyPieces = fullType.split(' ');
-                if(keyPieces.length > 1) {
-                    keyPieces.forEach((keyPiece, index) => {
-                        if(index != keyPieces.length - 1) {
-                            headerString += keyPiece.substring(0, 1).toUpperCase();
-                        } else {
-                            headerString += ' ' + keyPiece;
-                        }
-                    });
-                } else {
-                    headerString = fullType.substring(0, 1);
-                }
-
-                htmlString += '<th>' + headerString + '</th>';
-            });
-        // Averages row
-        } else if(i == 1) {
-            htmlString += '<td>Average</td>';
-            s_types.forEach((value, key) => {
-                if(!key.includes(' ')) {
-                    htmlString += '<td>' + Math.round(averages[key].average) + '</td>';
-                }
-            });
-            htmlString += '<td></td><td></td>';
-        // Value rows
-        } else {
-            var isDetailTarget = false;
-            if(shownReadings[detailReading.s_type][k].id == detailReading.id) {
-                htmlString += '<td class="detailTarget">' + shownReadings[detailReading.s_type][k].time.substring(0, 8) + '</td>';
-                isDetailTarget = true;
-            } else {
-                htmlString += '<td>' + shownReadings[detailReading.s_type][k].time.substring(0, 8) + '</td>';
-            }
-            types.forEach(type => {
-                if(k < shownReadings[type].length) {
-                    if(isDetailTarget) {
-                        htmlString += '<td class="detailTarget">' + shownReadings[type][k].sensor_value + '</td>';
-                    } else {
-                        htmlString += '<td>' + shownReadings[type][k].sensor_value + '</td>';
-                    }
-                }
-            });
-            isDetailTarget = false;
-            k ++;
-        }
-        htmlString += '</tr>';
-    }
-    $('#detailBody').html(htmlString);
 }
 
 // Adjust detailReading time
@@ -356,7 +309,7 @@ function checkToGetReadings() {
             detailReading.s_type = defaultDetailVariables.s_type;
             $('#detailTypeDropdown').html(s_types.get(detailReading.s_type));
         }
-        $('#detailPageTitle').html('Data for ' + detailReading.date + ', rack ' + detailReading.rack);
+        $('#detailPageTitle').html('Data for ' + detailReading.date + ', Rack ' + detailReading.rack);
         detailReading.id = undefined;
         generateShownReadingObjects(true);
         generateTimes();
@@ -440,6 +393,7 @@ if(sessionStorage.getItem('getDetails') == 'true') {
     generateShownReadingObjects(true);
     generateTimes();
     getDetailReadings();
+    $('#detailPageTitle').html('Data for ' + detailReading.date + ', Rack ' + detailReading.rack);
 } else {
     detailReading = {};
 }

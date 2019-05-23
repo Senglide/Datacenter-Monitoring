@@ -1,5 +1,6 @@
 // Script variables
 var dashboardTimer, backupSettings, alarmSocket,
+    dashboardIsOnline = true,
     refreshSettings = {'time': dashboardSettingsOptions.get('refresh').get(defaultDashboardVariables.refresh).time * 1000, 'amount': dashboardSettingsOptions.get('refresh').get(defaultDashboardVariables.refresh).amount},
     connectionBlocks = {'prefix': dashboardSettingsOptions.get('scope').get(defaultDashboardVariables.scope).prefix, 'suffix': dashboardSettingsOptions.get('scope').get(defaultDashboardVariables.scope).suffix},
     gridDimensions = {'row': defaultDashboardVariables.row},
@@ -84,7 +85,11 @@ function resetTimer() {
         gridcells.forEach(gridcell => {
             if(gridcell.graph) {
                 if(gridcell.graphType == 'Linechart') {
-                    gridcell.graph.getData(undefined, false);
+                    if(dashboardIsOnline) {
+                        gridcell.graph.getData(undefined, false);
+                    } else {
+                        gridcell.graph.getData(undefined, true);
+                    }
                 } else if(gridcell.graphType == 'Gauge') {
                     gridcell.graph.getData(false);
                 }
